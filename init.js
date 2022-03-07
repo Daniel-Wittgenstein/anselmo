@@ -427,10 +427,10 @@ class Entity {
             if (v === 9) target = -1
             if (target) info.level.map.set(collided_at_x, collided_at_y, target)
         }
+
         let pp = info.level.get_px_position_from_tile_position(0, lowest_tile_y)
         let yyy = pp.y
         this.y = yyy - this.total_height
-
         this.last_speed_y = 0
         this.speed_y = 0
         this.accel = 0
@@ -438,7 +438,7 @@ class Entity {
         this.sub_state = "standing"
         if (debug.log_player_state && this.is_player) console.log("landed on ground")
         if (this.is_player) {
-            //console.log("LANDED ON GROUND. y:", this.y)
+            console.log("LANDED ON GROUND. y:", this.y)
         }
         
 
@@ -489,9 +489,31 @@ class Entity {
         /*if (this.is_player) {
             console.log("FALLING, PLAYER POS", this.y)
         }*/
+        //kira 
 
-        if (info.tile_below) this.land_on_ground(info)
+        //console.log(this.collision_type)
+        let prev_colliding = false
+        if (!this.is_player) {
+            prev_colliding = true
+        } else {
+            for (let i = 1; i < 7; i++) {
+                if (this.pre_input_collision_state.entity_vs_map["bottom" + i].collides) {
+                    prev_colliding = true
+                    break
+                }
+            }    
+        }
+
+
+        if (info.tile_below &&
+            prev_colliding
+            //&& this.collision_type !== "left-right"
+            ) {
+            this.land_on_ground(info)
+        }
     }
+
+    //kira
 
     bump_head() {
         console.log("bump head, start falling")
@@ -504,9 +526,22 @@ class Entity {
 
         if (this.is_player && this.current_ladder) {
             this.disattach_from_ladder()
-        }//kakamerdos
+        }
 
-        if (info.tile_above) this.bump_head()
+        //console.log(this.collision_type)
+        let prev_colliding = false
+        if (!this.is_player) {
+            prev_colliding = true
+        } else {
+            for (let i = 1; i < 7; i++) {
+                if (this.pre_input_collision_state.entity_vs_map["top" + i].collides) {
+                    prev_colliding = true
+                    break
+                }
+            }    
+        }
+
+        if (info.tile_above && prev_colliding) this.bump_head()
 
         this.jump_speed_temp += this.jump_acc
 
@@ -579,25 +614,6 @@ class Entity {
 
         let ce = coll.entity_vs_map
 
-        info.tile_below = (
-            ce.bottom1.collides ||
-            ce.bottom2.collides ||
-            ce.bottom3.collides ||
-            ce.bottom4.collides ||
-            ce.bottom5.collides ||
-            ce.bottom6.collides     
-            )
-
-        info.tile_above = (
-            ce.top1.collides ||
-            ce.top2.collides ||
-            ce.top3.collides ||
-            ce.top4.collides ||
-            ce.top5.collides ||
-            ce.top6.collides
-            
-            )
-
         let do_collide = false
 
         this.collision_type = false
@@ -622,24 +638,41 @@ class Entity {
         if (do_collide) {
             if (this.last_mov_x) {
                 this.x -= this.last_mov_x 
-                //log("collide left/right") //to do todo:
+                log("collide left/right") //to do todo:
                 //why does this trigger all the time
                 //all of a sudden and why doesn't it affect
-                //the movement at atll, what is this?
+                //the movement at at all, what is this?
                 //(is this still a relevant bug??? context?)
             }
-        } else {
-            if (ce.sloper.collides
-                && this.walking
-                ) {
-                // walk up slope
-                this.collision_type = "slope"
-                this.y -= 1
-            }
         }
-                    
+    
+        // get info.tile_below info.tile_above: after handling left
+        // right collision! NO
+        /* we need to get the state of bottom1 etc, collides after
+        right left handling. kira */
+        
+        info.tile_below = (
+            ce.bottom1.collides ||
+            ce.bottom2.collides ||
+            ce.bottom3.collides ||
+            ce.bottom4.collides ||
+            ce.bottom5.collides ||
+            ce.bottom6.collides     
+            )
+
+        info.tile_above = (
+            ce.top1.collides ||
+            ce.top2.collides ||
+            ce.top3.collides ||
+            ce.top4.collides ||
+            ce.top5.collides ||
+            ce.top6.collides
+            
+            )
+
         //log(`below: ${info.tile_below} / above:  ${info.tile_above}`)
 
+        //if (this.is_player) console.log("PLAYER STATE", this.state)
 
         if ( this.state === "on_ground" ) {
             this.handle_on_ground(info)
@@ -879,7 +912,7 @@ class Coin extends Entity {
             info.player.score += 1
             sound["coin"].volume = 0.1
             sound["coin"].play()
-            this.destroy() //karvo
+            this.destroy()
         }
     }
 }
@@ -1660,34 +1693,30 @@ class Player extends Entity {
         this.collision_box = { x: 8, y: 0, w: 12, h: 32 }
         this.collision_dots = [
 
-            { id: "bottom1", x: 12, y: 33 },
-
-            { id: "bottom2", x: 16,y: 33, }, 
+            { id: "bottom1", x: 8, y: 33 },
+            { id: "bottom2", x: 13, y: 33 },
+            { id: "bottom3", x: 19,y: 33, }, 
 
             { id: "top1", x: 10, y: -12, },
-
             { id: "top2", x: 18, y: -12, },
-
             { id: "top3", x: 10, y: -4, },
-
             { id: "top4", x: 18, y: -4, },
 
             //for collision / no-movement:
-            { id: "left1", x: 6, y: 0, },
-            
-            { id: "left2", x: 4, y: 7, },
-            
-            { id: "left3", x: 4, y: 14, },
+            { id: "left1", x: 8, y: 6, },
+            { id: "left2", x: 8, y: 13, },        
+            { id: "left3", x: 8, y: 20, },           
+            { id: "left4", x: 8, y: 27, },
 
-            { id: "right1", x: 21, y: 0, },
-            
-            { id: "right2", x: 23, y: 7, },
-            
-            { id: "right3", x: 23, y: 14, },
+            { id: "right1", x: 19, y: 6, },
+            { id: "right2", x: 19, y: 13, },        
+            { id: "right3", x: 19, y: 20, },           
+            { id: "right4", x: 19, y: 27, },
+
 
             //for walking up slopes:
 
-            { id: "sloper", x: 14, y: 28, },
+            //{ id: "sloper", x: 14, y: 28, },
             
 
             
@@ -2186,13 +2215,13 @@ class Level {
 
 
     update(elapsed, key_bank, player) {
-        //to do: only update visible entities
-        // or entities close to visibility
-
-        player.handle_input(key_bank)
 
         this.collision_areas_temp = this.update_collision_areas()
         
+        player.pre_input_collision_state = this.get_collision_state(player)
+
+        player.handle_input(key_bank)
+
         let cam = this.get_camera_position(player, this.app.gfx_width,
             this.app.gfx_height)
         let camera_x = cam[0]
@@ -2200,7 +2229,6 @@ class Level {
 
         let update_limit_x = app.gfx_width / 2 + general.update_tolerance_x
         let update_limit_y = app.gfx_height / 2 + general.update_tolerance_y
-
         
         for (let entity of this.entities) {
             //console.log("e",entity.x, entity.y)
@@ -2693,7 +2721,7 @@ class App {
 
         //this.start_universe()
 
-        if (false && debug.quick_start) {
+        if (debug.quick_start) {
             this.start_game()
         } else {
             this.open_pre_screen()
