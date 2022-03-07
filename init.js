@@ -438,7 +438,7 @@ class Entity {
         this.sub_state = "standing"
         if (debug.log_player_state && this.is_player) console.log("landed on ground")
         if (this.is_player) {
-            console.log("LANDED ON GROUND. y:", this.y)
+            //console.log("LANDED ON GROUND. y:", this.y)
         }
         
 
@@ -464,12 +464,14 @@ class Entity {
         this.x += this.speed * this.direction
     }
 */
+
+/*
     stop_walking() {
         this.sub_state = "standing"
         this.anim_frame = this.request_standing_frame(this.anim_frame)
         this.state = "on_ground"
     }
-        
+  */      
 
     handle_falling(info) {
         if (this.gravity_disabled) return
@@ -1751,6 +1753,13 @@ class Player extends Entity {
 
     }
 
+    stop_walking() {
+        this.anim_frame = 0
+        this.anim_counter = 0
+        this.walking = false
+        this.last_mov_x = 0
+    }
+
     handle_lever(info) {
         if (
             info.keys.key_just_pressed_down.up
@@ -1858,6 +1867,7 @@ class Player extends Entity {
         }
 
         if (keys.key_down.right) {
+            console.log("RIGHT")
             this.x += this.speed
             this.walking = true
             this.last_mov_x = this.speed
@@ -1866,10 +1876,7 @@ class Player extends Entity {
 
         if (keys.key_just_released.left ||
             keys.key_just_released.right) {
-                this.anim_frame = 0
-                this.anim_counter = 0
-                this.walking = false
-                this.last_mov_x = 0
+                this.stop_walking()
         }
 
         if (keys.key_just_pressed_down.left ||
@@ -2726,6 +2733,17 @@ class App {
         } else {
             this.open_pre_screen()
         }
+
+        window.onblur = () => {
+            /* prevent bug where if page loses focus,
+            a button is considered as still pressed (and
+            player keeps running without a button being pressed,
+            for example):*/
+            console.log(333, this.key_bank)
+            this.key_bank.key_down = {}
+            this.player.stop_walking()
+        }
+    
 
         //this.start_game()
         //this.show_title_screen()
