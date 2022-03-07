@@ -157,6 +157,10 @@ class LevelGenerator {
             }
         }
 
+        let spacer = new Grid( grid.get_width(), 13, 0)
+
+        grid = Grid.join_grids(grid, spacer, "vertical")
+
 
         info.level.map = GameMap.game_map_from_grid(grid,
             info.tile_size, info.tile_image, info.level)

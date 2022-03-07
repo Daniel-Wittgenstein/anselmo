@@ -2286,8 +2286,8 @@ class Level {
         let camera_y = player.y - gfx_height / 2
         if (camera_x <= 32) camera_x = 32
         if (camera_x >= 2525) camera_x = 2525
-        let py = 1630
-        if (camera_y > py) camera_y = py
+        //let py = 1630
+        //if (camera_y > py) camera_y = py
         return [camera_x, camera_y]
     }
 
