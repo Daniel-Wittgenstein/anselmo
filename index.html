@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Anselmo the Alien</title>
+    
+    <link rel="preload" href="./fonts/ANSELMO.ttf" as="font"/>
+
+    <style>
+        body {
+            background-color: #222;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        img {
+            display: none;
+        }
+
+        canvas {
+            image-rendering: optimizeSpeed;             
+            image-rendering: -moz-crisp-edges;          
+            image-rendering: -webkit-optimize-contrast; 
+            image-rendering: -o-crisp-edges;            
+            image-rendering: crisp-edges;               
+            -ms-interpolation-mode: nearest-neighbor;  
+            
+            /* This might degrade performance? Disabling it for now.
+            wait ... does this even do anything?*/
+            /*width: auto;
+            height: 100%; */
+        }
+
+        #log {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            border: 2px solid #DDD;
+            color: #DDD;
+            font-family: sans-serif; 
+        }
+
+/*
+        #say-box {
+            font-family: anselmo;
+            font-size: 16px;
+            color: #FFF;
+            background: rgba(100,0, 0, 1);
+            width: 640px;
+            padding: 8px;
+            position:absolute;
+        }
+*/
+
+    </style>
+</head>
+<body>
+
+    <div id="log"></div>
+
+
+    <img src="assets/kudo0.png">
+    <img src="assets/kudo1.png">
+    <img src="assets/kudo0r.png">
+    <img src="assets/kudo1r.png">
+
+    <img src="assets/runner0.png">
+    <img src="assets/runner1.png">
+    <img src="assets/runner2.png">
+    <img src="assets/runner3.png">
+    <img src="assets/runner4.png">
+    <img src="assets/runner5.png">
+    <img src="assets/runner0r.png">
+    <img src="assets/runner1r.png">
+    <img src="assets/runner2r.png">
+    <img src="assets/runner3r.png">
+    <img src="assets/runner4r.png">
+    <img src="assets/runner5r.png">
+
+    <img src="assets/brunner0.png">
+    <img src="assets/brunner1.png">
+    <img src="assets/brunner2.png">
+    <img src="assets/brunner3.png">
+    <img src="assets/brunner4.png">
+    <img src="assets/brunner5.png">
+    <img src="assets/brunner0r.png">
+    <img src="assets/brunner1r.png">
+    <img src="assets/brunner2r.png">
+    <img src="assets/brunner3r.png">
+    <img src="assets/brunner4r.png">
+    <img src="assets/brunner5r.png">
+
+
+    <img src="assets/pu0.png">
+    <img src="assets/pu1.png">
+    <img src="assets/pu2.png">
+    <img src="assets/pu3.png">
+    <img src="assets/pu4.png">
+    <img src="assets/pu5.png">
+    <img src="assets/pu0r.png">
+    <img src="assets/pu1r.png">
+    <img src="assets/pu2r.png">
+    <img src="assets/pu3r.png">
+    <img src="assets/pu4r.png">
+    <img src="assets/pu5r.png">
+
+
+    <img id="killa0" src="assets/killa1.png">
+    <img id="killa1" src="assets/killa1.png">
+    <img id="killa2" src="assets/killa1.png">
+    <img id="killa3" src="assets/killa2.png">
+    <img id="killa4" src="assets/killa1.png">
+    <img id="killa5" src="assets/killa2.png">
+    <img id="killa0r" src="assets/killa1r.png">
+    <img id="killa1r" src="assets/killa1r.png">
+    <img id="killa2r" src="assets/killa1r.png">
+    <img id="killa3r" src="assets/killa2r.png">
+    <img id="killa4r" src="assets/killa1r.png">
+    <img id="killa5r" src="assets/killa2r.png">
+
+
+
+    <img id="spikeball0" src="assets/spikeball.png">
+    <img id="spikeball1" src="assets/spikeball.png">
+    <img id="spikeball2" src="assets/spikeball.png">
+    <img id="spikeball3" src="assets/spikeball.png">
+    <img id="spikeball4" src="assets/spikeball.png">
+    <img id="spikeball5" src="assets/spikeball.png">
+    <img id="spikeball0r" src="assets/spikeball.png">
+    <img id="spikeball1r" src="assets/spikeball.png">
+    <img id="spikeball2r" src="assets/spikeball.png">
+    <img id="spikeball3r" src="assets/spikeball.png">
+    <img id="spikeball4r" src="assets/spikeball.png">
+    <img id="spikeball5r" src="assets/spikeball.png">
+
+
+    <img id="marata0" src="assets/marata1.png">
+    <img id="marata1" src="assets/marata1.png">
+    <img id="marata2" src="assets/marata1.png">
+    <img id="marata3" src="assets/marata2.png">
+    <img id="marata4" src="assets/marata1.png">
+    <img id="marata5" src="assets/marata2.png">
+    <img id="marata0r" src="assets/marata1r.png">
+    <img id="marata1r" src="assets/marata1r.png">
+    <img id="marata2r" src="assets/marata1r.png">
+    <img id="marata3r" src="assets/marata2r.png">
+    <img id="marata4r" src="assets/marata1r.png">
+    <img id="marata5r" src="assets/marata2r.png">
+
+
+    <img id="greeno0" src="assets/greeno1.png">
+    <img id="greeno1" src="assets/greeno1.png">
+    <img id="greeno2" src="assets/greeno1.png">
+    <img id="greeno3" src="assets/greeno2.png">
+    <img id="greeno4" src="assets/greeno1.png">
+    <img id="greeno5" src="assets/greeno2.png">
+    <img id="greeno0r" src="assets/greeno1r.png">
+    <img id="greeno1r" src="assets/greeno1r.png">
+    <img id="greeno2r" src="assets/greeno1r.png">
+    <img id="greeno3r" src="assets/greeno2r.png">
+    <img id="greeno4r" src="assets/greeno1r.png">
+    <img id="greeno5r" src="assets/greeno2r.png">
+
+
+
+
+
+    <img src="assets/tile0.png">
+    <img src="assets/tile1.png">
+    <img src="assets/tile2.png">
+    <img src="assets/tile3.png">
+    <img src="assets/tile4.png">
+    <img src="assets/tile5.png">
+    <img src="assets/tile6.png">
+    <img src="assets/tile7.png">
+    <img src="assets/tile8.png">
+    <img src="assets/tile9.png">
+    
+    
+    <img id="coin0" src="assets/coin0.png">
+
+    <img id="ladder0" src="assets/ladder.png">
+    
+
+    <img src="assets/anselmo0.png">
+    <img src="assets/anselmo1.png">
+    <img src="assets/anselmo0r.png">
+    <img src="assets/anselmo1r.png">
+    
+    
+    <img id="anselmoladder0" src="assets/anselmoladder0.png">
+    <img id="anselmoladder1" src="assets/anselmoladder1.png">
+    <img id="anselmoladder0r" src="assets/anselmoladder0.png">
+    <img id="anselmoladder1r" src="assets/anselmoladder1.png">
+
+
+    <img src="assets/lever0.png">
+    <img src="assets/lever1.png">
+
+    <img src="assets/title1.png">
+    <img src="assets/title2.png">
+    <img src="assets/titleloading.png">
+    <img src="assets/studio-title.png">
+
+
+    <img src="assets/star0.png">
+    <img src="assets/star1.png">
+    <img src="assets/star2.png">
+
+
+    <img src="assets/aship0.png">
+    <img src="assets/aship1.png">
+    <img src="assets/aship2.png">
+
+    <img src="assets/planet1.png">
+    <img src="assets/planet2.png">
+    <img src="assets/planet3.png">
+    <img src="assets/planet_chooser.png">
+    <img src="assets/sun.png">
+
+
+    <audio id ="jump1" src="audio/jump3.wav">
+    <audio id ="jump2" src="audio/jumpx.wav">
+    <audio id ="click" src="audio/click.wav">
+    <audio id ="ran" src="audio/ran.wav">
+    <audio id ="blip" src="audio/blip.wav">
+    <audio id ="bit" src="audio/bit.wav">
+    <audio id ="coin" src="audio/coin.wav">
+    <audio id ="lever" src="audio/up1.wav">
+
+    <audio id ="music1" src="audio/Adventure.mp3">
+
+
+
+        
+        
+
+
+    <script src="libs/seedrandom.js"></script>
+
+
+    <!--<script src="libs/howler.core.min.js"></script>-->
+
+
+
+
+    <script src="grid.js"></script>
+
+    <script src="mainloop.js"></script>
+
+    <script src="init.js"></script>
+
+    <script src="level-templates-lookup-tables.js"></script>
+
+    <script src="level-generator.js"></script>
+
+    <script src="level-templates.js"></script>
+
+
+
+
+</body>
+</html>
