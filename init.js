@@ -1400,7 +1400,7 @@ class Pumpkin extends JumpCharger {
 
         this.image = "pu"
         
-        this.has_jumping = true
+        this.has_jumping = false
         this.jump_cooldown_min = 550
         this.jump_cooldown_max = 700
         this.jump_power_min = 3
@@ -1867,7 +1867,6 @@ class Player extends Entity {
         }
 
         if (keys.key_down.right) {
-            console.log("RIGHT")
             this.x += this.speed
             this.walking = true
             this.last_mov_x = this.speed
@@ -2739,7 +2738,6 @@ class App {
             a button is considered as still pressed (and
             player keeps running without a button being pressed,
             for example):*/
-            console.log(333, this.key_bank)
             this.key_bank.key_down = {}
             this.player.stop_walking()
         }
