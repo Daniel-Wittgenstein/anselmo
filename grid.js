@@ -51,6 +51,35 @@ class Grid {
         }
     }
 
+    circle_loop(func, mid_x = 0, mid_y = 0, cubic_radius = 9,
+        func_other = () => {},
+        start_x = 0, start_y = 0, end_x = -666, end_y = -666) {
+        /* 
+        - the radius is expressed in tiles, but it can be a float.
+        it is cubed though, i.e. pass 9 if you want 3!
+
+        - func_other is optional: gets called for all
+        tiles outside the circle (but not outside grid!)
+
+        - func (and func_other) gets passed: 1. x, 2. y, 3. tile_value
+            if circle is only partially inside grid, the part
+            outside the grid is simply ignored (does not throw error)
+        */
+        let func2 = (_, x, y, value) => {
+            let a = x - mid_x
+            let b = y - mid_y
+            let c_squared = a * a + b * b
+            let do_this
+            if (c_squared <= cubic_radius) {
+                do_this = func
+            } else {
+                do_this = func_other
+            }
+            do_this(x, y, value)
+        }
+        this.loop(func2, start_x = 0, start_y = 0, end_x = -666, end_y = -666)
+    }
+
     get(x, y, outside_x = undefined, outside_y = undefined) {
         if (this.array[x] === undefined) return outside_x
         if (this.array[x][y] === undefined) return outside_y

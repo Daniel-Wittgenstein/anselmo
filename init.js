@@ -83,9 +83,7 @@ title screen gebaut
 
 9. tag: space ship screen mit planetenauswahl gebaut
 
-        BOMBEN WERDEN GEIL :)
-naja muss halt werfen machen, mit richtigen kollisionen
-
+************ lange nichts mehr gemacht.
 
 
 
@@ -153,7 +151,7 @@ let debug = {
     create_extra_entities: 0, //WARNING: should be 0 for production.
         //1 creates 10 entities, 2 creates 20 entities etc.!
 
-    quick_start: true,
+    quick_start: 0,
     
 }
 
@@ -326,7 +324,6 @@ class Entity {
 
 
     destroy() {
-
         this.level.remove_entity(this)
     }
 
@@ -640,7 +637,7 @@ class Entity {
         if (do_collide) {
             if (this.last_mov_x) {
                 this.x -= this.last_mov_x 
-                log("collide left/right") //to do todo:
+                //log("collide left/right") //to do todo:
                 //why does this trigger all the time
                 //all of a sudden and why doesn't it affect
                 //the movement at at all, what is this?
@@ -698,6 +695,9 @@ class Entity {
         if (this.direction === 1) {
             dir = "r"
         }
+
+        if (this.same_image_both_directions) dir = ""
+
         let nr = this.anim_frame
 
         let modifier = ""
@@ -897,6 +897,105 @@ class Monster extends Entity {
         super.handle_common_movement(info)
     }
 
+}
+
+
+class Bullet extends Entity {
+    /* stuff that is more or less
+    a bullet.
+    currently destroyed by lifetime
+    not by exit screen, because
+    it's easier than to mess around
+    with camera viewpor
+    */
+    constructor(x, y) {
+        super()
+        this.same_image_both_directions = true
+        this.image = "coin"
+        this.direction = -1
+        this.collision_box = { x: 4, y: 4, w: 24, h: 22 }        
+        this.collision_dots = [
+            { id:"bottom1", x: 8, y: 8, }
+        ]
+        this.x = x
+        this.y = y
+        this.max_life_time = 5000 //subclasses
+            //can change this
+        this._creation = performance.now() 
+    }
+    
+    update(info) {
+        if ( this.destroy_if_old(info) ) return
+        this.move(info)
+        if (info.coll.entity_vs_map.bottom1.collides) {
+            this.on_collide_with_map(info)
+        } else if (info.coll.entity_vs_entity.length > 0) {
+            //take fist entity. if they overlap,
+            //there is probably little point
+            //into distinguishing - well for some cases
+            //there might be, but if we really do logic
+            //like that we will adapt the code
+            this.on_collide_with_entity(info, info.coll.entity_vs_entity[0])
+        }
+    }
+
+    on_collide_with_entity(info, entity) {
+        //subclasses can custom define this
+    }
+
+    on_collide_with_map(info) {
+        //subclasses can custom define this
+    }
+
+    move(info) {
+        //subclasses can custom define this
+        this.x += 2 * this.direction
+    }
+
+    destroy_if_old() {
+        let time = performance.now()
+        let elapsed = time - this._creation
+        if (elapsed > this.max_life_time) {
+            this.destroy()
+            return true
+        }
+        return false
+    }
+
+}
+
+class BombBullet extends Bullet {
+    constructor(x, y) {
+        super(x, y)
+    }
+
+    on_collide_with_entity(info, entity) {
+        this.explode(info)
+    }
+
+    on_collide_with_map(info) {
+        this.explode(info)
+    }
+
+    move(info) {
+        this.x += 3 * this.direction
+    }
+
+    explode(info) {
+        let map = info.level.map
+        let tile = info.level.get_tile_at_position(this.x, this.y)
+        console.log(tile)
+
+        let func = ( (x, y, value) => {
+            map.set(x, y, -1)
+        })
+        let sx = tile.x
+        let sy = tile.y
+        let radius = 10
+        map.circle_loop(func, sx, sy, radius * radius)
+
+        this.destroy()
+    }
 }
 
 
@@ -1745,12 +1844,23 @@ class Player extends Entity {
             this.x = this.current_ladder.x - 6 
         }
 
+        if (this.shoot_input) {
+            this.shoot(info)
+        }
+
         this.handle_common_movement(info)
 
         this.handle_ladder(info)
 
         this.handle_lever(info)
 
+    }
+
+    shoot(info) {
+        let dir = this.direction
+        let bullet = info.level.create_entity(BombBullet, 
+            this.x + dir * 20, this.y)        
+        bullet.direction = dir
     }
 
     stop_walking() {
@@ -1852,9 +1962,11 @@ class Player extends Entity {
             }
             if (keys.key_down.right) {
                 this.x += s
+                this.direction = 1
             }
             if (keys.key_down.left) {
                 this.x -= s
+                this.direction = -1
             }
             return
         }
@@ -1864,12 +1976,19 @@ class Player extends Entity {
             this.x -= this.speed
             this.walking = true
             this.last_mov_x = -this.speed
+            this.direction = -1
         }
 
         if (keys.key_down.right) {
             this.x += this.speed
             this.walking = true
             this.last_mov_x = this.speed
+            this.direction = 1
+        }
+
+        this.shoot_input = false
+        if (keys.key_just_pressed_down.shoot) {
+            this.shoot_input = true
         }
 
 
@@ -1930,9 +2049,18 @@ class GameMap extends Grid {
         if (!this.level) throw `No level passed`
     }
 
+
+
+
+/*
+    draw_circle(func, sx, sy, radius) {
+        let func = ( (x, y, value) => {
+            this.set(x, y, 2)
+        })
+        this.circle_loop(func, sx, sy, radius)
+    }
+*/
     render(drawing_context, offset_x, offset_y, start_x, start_y, end_x, end_y) {
-
-
         //testing: draw the entire map:
         start_x = 0
         start_y = 0
@@ -2711,10 +2839,8 @@ class App {
         this.ctx.imageSmoothingEnabled = false
         this.ctx.fillStyle = "#07A"
 
-
         this.init_images()
         this.init_audio()
-
 
         let main_loop = new MainLoop(this.update_rate,
             this.update.bind(this),
@@ -2742,9 +2868,6 @@ class App {
             this.player.stop_walking()
         }
     
-
-        //this.start_game()
-        //this.show_title_screen()
     }
 
 
@@ -2918,6 +3041,10 @@ class App {
 
         if (debug.create_extra_entities) gogo = debug.create_extra_entities
 
+        //this.test2 = this.current_level.create_entity(BulletLike)
+        //this.test2.x = 60
+        //this.test2.y = 1050
+
         for (let i = 0; i < gogo; i++) {
 
             this.test2 = this.current_level.create_entity(Kudo)
@@ -2970,9 +3097,11 @@ class App {
         //this should be generic, not tailored to player.
         //it can be used by the universe map and other things, too
         document.addEventListener('keydown', (e) => {
-            
+            console.log("KEY EVENT", e)
+
             //chrome messes up the event handler when god mode is enabled
-            //but only sometimes or .... what is this?
+            //but only sometimes or .... what is this? sometimes
+            //letter keys do not fire, but other key do. wtf?
             if (e.key === "g") {
                 debug.god_mode = !debug.god_mode
                 console.log("GOD MODE:", debug.god_mode)

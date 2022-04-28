@@ -85,8 +85,6 @@ class LevelGenerator {
 
 //                console.log(x, yy, blaupause[yy][x])
 
-
-
                 if ( blaupause[yy][x] && blaupause[yy][x].startsWith("down") ) {
                     requested_property = "bottom_open"
                     tmp_subset = subset.filter(n => n.bottom_open)
@@ -161,12 +159,10 @@ class LevelGenerator {
 
         grid = Grid.join_grids(grid, spacer, "vertical")
 
-
         info.level.map = GameMap.game_map_from_grid(grid,
             info.tile_size, info.tile_image, info.level)
 
-
-        info.level.map.loop ( (that, x, y, value) => {
+            info.level.map.loop ( (that, x, y, value) => {
             let position_entity = function(entity, x, y) {
                 let mult = info.level.map.tile_size
                 entity.x = x * mult
