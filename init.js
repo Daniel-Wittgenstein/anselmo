@@ -2864,6 +2864,9 @@ class App {
             a button is considered as still pressed (and
             player keeps running without a button being pressed,
             for example):*/
+
+            if (!this.player) return
+
             this.key_bank.key_down = {}
             this.player.stop_walking()
         }
