@@ -128,7 +128,7 @@ let debug = {
     log_stats: 0, //truthy / falsey
     log_stats_interval: 3000, //milliseconds
 
-    show_collision_boxes: 0, //enable/disable with alt + c
+    show_collision_boxes: 0, //enable/disable with alt + c, also show collision dots
     log_player_state: 0,
 
     highlight_tile: 0,
@@ -151,7 +151,7 @@ let debug = {
     create_extra_entities: 0, //WARNING: should be 0 for production.
         //1 creates 10 entities, 2 creates 20 entities etc.!
 
-    quick_start: 0,
+    quick_start: true,
     
 }
 
@@ -911,11 +911,18 @@ class Bullet extends Entity {
     constructor(x, y) {
         super()
         this.same_image_both_directions = true
-        this.image = "coin"
+        this.image = "bomb"
         this.direction = -1
-        this.collision_box = { x: 4, y: 4, w: 24, h: 22 }        
+        this.collision_box = { x: 4, y: 4, w: 24, h: 22 }      
+        let offx = 10
+        let offy = 10
+        let tx = 10
+        let ty = 10
         this.collision_dots = [
-            { id:"bottom1", x: 8, y: 8, }
+            { id:"top1", x: offx, y: offy, },
+            { id:"top2", x: offx + tx, y: offy, },
+            { id:"top3", x: offx, y: offy + ty, },
+            { id:"top4", x: offx + tx, y: offy + ty, },
         ]
         this.x = x
         this.y = y
@@ -927,7 +934,16 @@ class Bullet extends Entity {
     update(info) {
         if ( this.destroy_if_old(info) ) return
         this.move(info)
-        if (info.coll.entity_vs_map.bottom1.collides) {
+        if (
+            info.coll.entity_vs_map.top1.collides
+            ||
+            info.coll.entity_vs_map.top2.collides
+            ||
+            info.coll.entity_vs_map.top3.collides
+            ||
+            info.coll.entity_vs_map.top4.collides
+            )
+        {
             this.on_collide_with_map(info)
         } else if (info.coll.entity_vs_entity.length > 0) {
             //take fist entity. if they overlap,
@@ -967,9 +983,51 @@ class Bullet extends Entity {
 class BombBullet extends Bullet {
     constructor(x, y) {
         super(x, y)
+        this.is_bomb_bullet = true
+        this.curve_power = -10
     }
 
+    move(info) {
+        this.x += 3 * this.direction
+        this.y += this.curve_power
+        this.curve_power += 0.5        
+    }
+
+    //hickups in bullet seem to come entirely from entity collisions
+    //i don't know what fucking invisible entity does this??????
+    //sometimes a bullet just disappears shortly after shooting it
+
+
     on_collide_with_entity(info, entity) {
+
+        //return //testing
+
+        return //currently totally disabled
+
+
+        //sometimes bullets collide with other bullets!
+        //i still don't really get how on earth a bullet can catch up to another
+        //bullet when they all have the same speed, but they definitely
+        //DO collide. so we just ignore these collisions
+
+        if (
+            entity.is_bomb_bullet ||
+            entity.is_ladder ||
+            entity.is_coin ||
+            entity.is_explosion
+
+            ) {
+            return
+        }
+
+        if (entity.is_player) {
+            //you can shoot and immediately run into your own bullet
+            //making it explode
+            //(if bullet is slow enough, at least) / this prevents that
+            return
+        }
+
+        console.log("BOMB BULLET COLLIDED WITH ENTITY:", entity)
         this.explode(info)
     }
 
@@ -977,11 +1035,14 @@ class BombBullet extends Bullet {
         this.explode(info)
     }
 
-    move(info) {
-        this.x += 3 * this.direction
-    }
-
     explode(info) {
+        let exp = info.level.create_entity(Explosion, 
+            this.x, this.y)
+        exp.x = this.x - 64
+        exp.y = this.y - 64
+        console.log(221,exp, this.x)
+        
+
         let map = info.level.map
         let tile = info.level.get_tile_at_position(this.x, this.y)
         console.log(tile)
@@ -991,12 +1052,43 @@ class BombBullet extends Bullet {
         })
         let sx = tile.x
         let sy = tile.y
-        let radius = 10
+        let radius = 4
         map.circle_loop(func, sx, sy, radius * radius)
 
         this.destroy()
     }
 }
+
+
+class Explosion extends Monster{
+    constructor() {
+        super()
+        this.image = "explode"
+        this.direction = -1
+        this.anim_frame = 0
+        this.speed = 0
+        console.log(999, this) 
+        this.collision_box = { x: 4, y: 4, w: 24, h: 22 }   
+        this.counter = 0
+        this.blink_speed = 5
+        this.is_explosion = true
+        this.time = 5
+    }
+
+    update() {
+        this.counter ++
+        if (this.counter >= this.blink_speed) {
+            this.counter = 0
+            this.anim_frame = 1 - this.anim_frame
+        }
+        this.time --
+        if (this.time <= 0) {
+            this.destroy()
+        }
+    }
+
+}
+
 
 
 class Coin extends Entity {
@@ -1006,6 +1098,7 @@ class Coin extends Entity {
         this.direction = -1
         this.collision_box = { x: 4, y: 4, w: 24, h: 22 }
         this.collision_dots = []
+        this.is_coin = true
     }
     update(info) {
         let x = info.coll.entity_vs_entity.includes(info.player)
@@ -1857,9 +1950,11 @@ class Player extends Entity {
     }
 
     shoot(info) {
+        let dist = 0
+        let off_y = -20
         let dir = this.direction
         let bullet = info.level.create_entity(BombBullet, 
-            this.x + dir * 20, this.y)        
+            this.x + dir * dist, this.y + off_y)  
         bullet.direction = dir
     }
 
@@ -2804,7 +2899,8 @@ class App {
             d: "right",
             k: "jump",
             " ": "jump",
-            l: "shoot",        
+            y: "jump",
+            x: "shoot",        
         }
 
         this.key_bank = {
@@ -3100,7 +3196,7 @@ class App {
         //this should be generic, not tailored to player.
         //it can be used by the universe map and other things, too
         document.addEventListener('keydown', (e) => {
-            console.log("KEY EVENT", e)
+            //console.log("KEY EVENT", e)
 
             //chrome messes up the event handler when god mode is enabled
             //but only sometimes or .... what is this? sometimes
