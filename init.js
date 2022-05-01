@@ -606,8 +606,7 @@ class Entity {
     handle_common_movement(info) {
         //handles jumping, falling and collisions
         //for player in the first place!!!
-        //but other entities can call this, too
-
+        //but other entities can call this, too (theoretically, but do they?)
 
         let coll = info.collision_state
 
@@ -673,6 +672,21 @@ class Entity {
 
         //if (this.is_player) console.log("PLAYER STATE", this.state)
 
+        /*
+        let rcoll = false
+
+        for (let ent of info.coll.entity_vs_entity) {
+            if (ent.is_rock) {
+                rcoll = true
+                break
+            }
+        }
+        */
+
+
+
+
+        
         if ( this.state === "on_ground" ) {
             this.handle_on_ground(info)
         } else if ( this.state === "jumping" ) {
@@ -1009,7 +1023,7 @@ class BombBullet extends Bullet {
         //i still don't really get how on earth a bullet can catch up to another
         //bullet when they all have the same speed, but they definitely
         //DO collide. so we just ignore these collisions
-
+        /*
         if (
             entity.is_bomb_bullet ||
             entity.is_ladder ||
@@ -1028,7 +1042,7 @@ class BombBullet extends Bullet {
         }
 
         console.log("BOMB BULLET COLLIDED WITH ENTITY:", entity)
-        this.explode(info)
+        this.explode(info)*/
     }
 
     on_collide_with_map(info) {
@@ -1059,6 +1073,75 @@ class BombBullet extends Bullet {
     }
 }
 
+// xyzzy
+class Rock extends Monster {
+    constructor() {
+        super()
+        this.is_rock = true
+        this.image = "rock"
+        this.direction = -1
+        this.anim_frame = 0
+        this.speed = 0
+        this.last_y_mov = 0
+        this.collision_box = { x: 4, y: 4, w: 28, h: 22 }
+        this.collision_dots = [
+            { id: "bottom1", x: 4, y: 26 },
+            { id: "bottom2", x: 18, y: 26 },
+            { id: "bottom3", x: 28, y: 26 },
+            { id: "left1", x: 4, y: 9 },
+            { id: "left2", x: 4, y: 13 },
+            { id: "right1", x: 28, y: 9 },
+            { id: "right2", x: 28, y: 13 },
+
+        ]
+    }
+
+    update(info) {
+        let speed = 10
+        this.y += speed
+        this.last_y_mov = speed
+        
+        if (
+            info.coll.entity_vs_map.bottom1.collides
+            ||
+            info.coll.entity_vs_map.bottom2.collides
+            ||
+            info.coll.entity_vs_map.bottom3.collides
+            )
+        {
+            this.y -= this.last_y_mov
+        }
+
+
+        if (info.coll.entity_vs_entity.includes(info.player)) {
+            console.log(333, info.player)
+            let delta = info.player.direction * info.player.speed
+            let block = false
+            
+            if ( delta < 0 && (info.coll.entity_vs_map.left1.collides
+                 || info.coll.entity_vs_map.left2.collides) ) {
+                block = true
+            }
+            
+
+            if ( delta > 0 && (info.coll.entity_vs_map.right1.collides ||
+                    info.coll.entity_vs_map.right2.collides) ) {
+                block = true
+            }
+
+            if (!block) {
+                this.x += delta
+            } else {
+                info.player.x -= info.player.speed * info.player.direction
+            }
+
+        
+        }
+
+
+    }
+
+}
 
 class Explosion extends Monster{
     constructor() {
@@ -3143,6 +3226,32 @@ class App {
         //this.test2 = this.current_level.create_entity(BulletLike)
         //this.test2.x = 60
         //this.test2.y = 1050
+
+        //testing xyzzy
+        /*
+        this.test2 = this.current_level.create_entity(Rock)
+        this.test2.x = 300
+        this.test2.y = 800
+
+        this.test2 = this.current_level.create_entity(Rock)
+        this.test2.x = 330
+        this.test2.y = 500
+
+        this.test2 = this.current_level.create_entity(Rock)
+        this.test2.x = 360
+        this.test2.y = 1000
+
+        this.test2 = this.current_level.create_entity(Rock)
+        this.test2.x = 280
+        this.test2.y = 700
+
+        this.test2 = this.current_level.create_entity(Rock)
+        this.test2.x = 390
+        this.test2.y = 400
+        */
+
+
+
 
         for (let i = 0; i < gogo; i++) {
 

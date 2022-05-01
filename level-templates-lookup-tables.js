@@ -103,6 +103,7 @@ window.legend =
         8: 8,
         9: 9,
         "#": () => Ladder,
+        "§": () => Rock,
     }
 }
 
