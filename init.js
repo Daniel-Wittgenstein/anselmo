@@ -136,7 +136,7 @@ let debug = {
     highlight_tile_y: 10,
 
     god_mode: 0, //not just invincible, also flying around
-        //and no clip se you can see the entire map
+        //and no clip so you can see the entire map
         //enable /disable with alt + g
 
     test_template: false, //= no debug
@@ -151,7 +151,7 @@ let debug = {
     create_extra_entities: 0, //WARNING: should be 0 for production.
         //1 creates 10 entities, 2 creates 20 entities etc.!
 
-    quick_start: true,
+    quick_start: 1,
     
 }
 
@@ -379,7 +379,7 @@ class Entity {
     land_on_ground(info) {
         this.y -= this.last_speed_y
 
-        /*we have to position the entity exatly on the ground
+        /*we have to position the entity exactly on the ground
         precise to one pixel. we only know that a collision
         between the collision dot and the map took place.
         now we need to check all dots and see which one is
@@ -433,7 +433,7 @@ class Entity {
         this.accel = 0
         this.state = "on_ground"
         this.sub_state = "standing"
-        if (debug.log_player_state && this.is_player) console.log("landed on ground")
+        //if (debug.log_player_state && this.is_player) console.log("landed on ground")
         if (this.is_player) {
             //console.log("LANDED ON GROUND. y:", this.y)
         }
@@ -495,12 +495,15 @@ class Entity {
         if (!this.is_player) {
             prev_colliding = true
         } else {
+            //for player:
+
             for (let i = 1; i < 7; i++) {
                 if (this.pre_input_collision_state.entity_vs_map["bottom" + i].collides) {
                     prev_colliding = true
                     break
                 }
             }    
+            prev_colliding = true
         }
 
 
@@ -728,6 +731,11 @@ class Entity {
             drawing_context.raw_ctx.globalAlpha = 1
         }
 
+        if (window.nazi && this.is_player) console.log("rendering player at", this.x, this.y,
+          "diff", this.y - this.test_only_last_y)
+
+        this.test_only_last_y = this.y
+
         drawing_context.draw_image(img_name, this.x +
             offset_x, this.y + offset_y)
 
@@ -920,7 +928,7 @@ class Bullet extends Entity {
     currently destroyed by lifetime
     not by exit screen, because
     it's easier than to mess around
-    with camera viewpor
+    with camera viewport
     */
     constructor(x, y) {
         super()
@@ -1114,7 +1122,7 @@ class Rock extends Monster {
 
 
         if (info.coll.entity_vs_entity.includes(info.player)) {
-            console.log(333, info.player)
+            //console.log(333, info.player)
             let delta = info.player.direction * info.player.speed
             let block = false
             
@@ -1803,9 +1811,41 @@ class Sinner extends LazyJumper {
 
 
         super()
-        this.image = "brunner"   
+        this.image = "brunner"  
         this.jump_cooldown_min = 200
         this.jump_cooldown_max = 600
+
+        this.jump_power_min = 2
+        this.jump_power_max = 6
+        this.jump_power_decrease_by_px = 1 //better to keep this integer
+        this.jump_power_decrease_time = 4
+
+        this.has_different_x_speed_while_jumping = true
+        this.x_speed_while_jumping = 3
+        this.collision_dots.push({ id: "right2", x: 40, y: 23 })
+        this.collision_dots.push({ id: "left2", x: -10, y: 23 })
+        
+    }
+
+    update(info) {
+        super.update(info)
+
+    }
+}
+
+
+
+class Hopper extends LazyJumper {
+    constructor() {
+        /* 
+grasshopper
+        */
+
+
+        super()
+        this.image = "hop"
+        this.jump_cooldown_min = 100
+        this.jump_cooldown_max = 200
 
         this.jump_power_min = 2
         this.jump_power_max = 6
@@ -2024,13 +2064,17 @@ class Player extends Entity {
             this.shoot(info)
         }
 
+
+        this.only_test_last_y = this.y
+
         this.handle_common_movement(info)
 
         this.handle_ladder(info)
 
         this.handle_lever(info)
+        if (window.nazi) console.log("updating player at", this.x, this.y, "diff", this.y - this.only_test_last_y)
 
-    }
+      }
 
     shoot(info) {
         let dist = 0
@@ -2254,7 +2298,6 @@ class GameMap extends Grid {
             if (px < -20) return
             if (py < -20) return            
             
-
             if (value !== -1) drawing_context.draw_image(img_name, px, py)
 
             if (this.level.app.player.has_time_freeze_bubble) {
