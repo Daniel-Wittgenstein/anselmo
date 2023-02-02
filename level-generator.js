@@ -22,7 +22,7 @@ class LevelGenerator {
     chars_to_map_data(char, lookup_table) {
         let x = lookup_table[char]
         //check if object, in that case entity / tile etc.
-        if (!x && x != 0) throw `character '${char}' has no lookup_tabel mapping`
+        if (!x && x != 0) throw `character '${char}' has no lookup_table mapping`
         return x
     }
 
@@ -69,7 +69,11 @@ class LevelGenerator {
         function get_row(level_templates, width, yy, blaupause) {
             //width: integer: how many template blocks
             let section = "mid"
+                  section = "doodletest" //testing only!!!! xyzzy todo to do remove
             if (yy === 0) section = "air"
+
+                  if (yy === 0) section = "airtest" //testing only!
+            
             if (yy >= 2) section = "underground"
             let subset = level_templates.filter( l => l.section === section)
             if (!subset.length) {

@@ -97,11 +97,17 @@ window.legend =
         2: 2, //brown ground with grass
         3: 3, //infected ground
         4: 4, //infected ground 2
-        5: 5,
-        6: 6,
-        7: 7,
-        8: 8,
-        9: 9,
+        5: 5, // iron bar (open with lever)
+        6: 6, // iron bar (open with lever)
+        7: 7, // sand 1 (whole)
+        8: 8, // sand 2
+        9: 9, // sand 3
+
+        "★": 10, //disappearing tile
+        "^": 11, //spike tile
+        "°": 12, //spike tile 2
+        "T": 13, //stone/rock/tower grey tile
+
         "#": () => Ladder,
         "§": () => Rock,
     }

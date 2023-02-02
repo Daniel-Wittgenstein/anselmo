@@ -151,7 +151,7 @@ let debug = {
     create_extra_entities: 0, //WARNING: should be 0 for production.
         //1 creates 10 entities, 2 creates 20 entities etc.!
 
-    quick_start: 1,
+    quick_start: 1, //should be 0 for production
     
 }
 
@@ -397,6 +397,8 @@ class Entity {
         let collided_at_x
         let collided_at_y
         let collided_at_value
+
+        const tile_standing_on_coords = {}
         
         for (let i = 1; i < 7; i++) {
             let o = info.coll.entity_vs_map["bottom" + i]
@@ -406,14 +408,17 @@ class Entity {
                 collided_at_x = o.tile_x
                 collided_at_y = o.tile_y
                 collided_at_value = info.level.map.get(o.tile_x, o.tile_y)
+                tile_standing_on_coords.x = o.tile_x
+                tile_standing_on_coords.y = o.tile_y
             }
         }
 
         if (lowest_tile_y === -66666) throw `land_on_ground was triggered, 
             but there is no bottom dot that could have triggered it?!`
 
+
         //destroy sand tiles:
-        if (
+        if (  
             this.speed_y >= this.min_speed_to_destroy_sand_tile
             && this.destroys_sand_tiles
             ) {
@@ -439,7 +444,19 @@ class Entity {
         }
         
 
-    }
+        //special disappearing tile:
+        if (collided_at_value === 10) {
+          //set timer for tile? xyzzy
+          console.log("LANDED ON NINER", tile_standing_on_coords )
+          const dx = 0
+          const dy = -8
+          info.level.map.set(tile_standing_on_coords.x, tile_standing_on_coords.y, -1)
+          info.level.map.set(tile_standing_on_coords.x + dx, tile_standing_on_coords.y + dy, 2)          
+        }
+        
+
+
+    } //land_on_ground
 
 
     start_walking() {
@@ -1081,7 +1098,7 @@ class BombBullet extends Bullet {
     }
 }
 
-// xyzzy
+
 class Rock extends Monster {
     constructor() {
         super()
@@ -2072,9 +2089,23 @@ class Player extends Entity {
         this.handle_ladder(info)
 
         this.handle_lever(info)
+
+
+        /*if (this.state === "on_ground") {
+          this.handle_player_standing_on_ground(info)
+        }*/
+
         if (window.nazi) console.log("updating player at", this.x, this.y, "diff", this.y - this.only_test_last_y)
 
-      }
+
+
+    }
+
+
+    //handle_player_standing_on_ground(info) {
+      //this function is only for the player (unlike handle on ground)
+      
+    //}
 
     shoot(info) {
         let dist = 0
@@ -2366,6 +2397,10 @@ class Level {
             7: "tile7",
             8: "tile8",
             9: "tile9",
+            10: "tile10",
+            11: "tile11",
+            12: "tile12",
+            13: "tile13",
         }
 
         let info = {
@@ -3270,7 +3305,7 @@ class App {
         //this.test2.x = 60
         //this.test2.y = 1050
 
-        //testing xyzzy
+        
         /*
         this.test2 = this.current_level.create_entity(Rock)
         this.test2.x = 300
