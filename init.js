@@ -128,6 +128,8 @@ let debug = {
     log_stats: 0, //truthy / falsey
     log_stats_interval: 3000, //milliseconds
 
+    hide_overlay_tiles: 0,
+
     show_collision_boxes: 0, //enable/disable with alt + c, also show collision dots
     log_player_state: 0,
 
@@ -477,7 +479,6 @@ class Entity {
         
         //invisible tile:
         if (collided_at_value === 14) {
-            console.log("HAUPTSCHILE")
             info.level.map.set(tile_standing_on_coords.x, tile_standing_on_coords.y, 15)        
         }
 
@@ -950,6 +951,8 @@ class TechBridgeClosed extends TechBridge {
 
 
 
+
+
 class Monster extends Entity {
     //all entities except for the player
     //are of class Monster
@@ -1127,6 +1130,7 @@ class BombBullet extends Bullet {
         this.destroy()
     }
 }
+
 
 
 class Rock extends Monster {
@@ -1320,6 +1324,8 @@ class Runner extends Monster {
         this.has_different_x_speed_while_jumping = false
         this.x_speed_while_jumping = 0
 
+        
+
         //NON-SETTINGS
 
 
@@ -1329,7 +1335,6 @@ class Runner extends Monster {
         this.count = 0
         this.status = 0
         this.anim_frame = 0
-
 
         this.wait_till_angry_again = this.wait_till_angry_again_time
         
@@ -1408,6 +1413,7 @@ class Runner extends Monster {
 
         if(this.count <= 0) {
             this.status ++
+
             if (this.status >= 7) {
                 this.status = 1
                 this.wait_till_angry_again = this.wait_till_angry_again_time
@@ -1444,7 +1450,7 @@ class Runner extends Monster {
                 this.dont_walk_now = true
                 this.walking = false
                 this.angry = true
-            }  else if(this.status === 6) {
+            }  else if (this.status === 6) {
                 //running
                 this.running = true
                 this.count = rnd(this.running_time_min, this.running_time_max)
@@ -1499,6 +1505,9 @@ class Runner extends Monster {
             }
         }
 
+
+
+        
         
         if (this.status === 10) {
 
@@ -1587,6 +1596,7 @@ class Runner extends Monster {
 
     } //update
 
+
     render(elapsed, drawing_context, offset_x, offset_y, modifiers) {
         super.render(elapsed, drawing_context, offset_x, offset_y, modifiers)
     }
@@ -1629,6 +1639,8 @@ class Jumper extends Runner {
     }
 
 }
+
+
 
 
 class Bloogie extends Runner {
@@ -1720,6 +1732,9 @@ class Killa extends JumpCharger {
     }
 
 }
+
+
+
 
 
 class Pumpkin extends JumpCharger {
@@ -1956,6 +1971,7 @@ class Infector extends Jumper {
 
 
 
+
 class Kudo extends Monster {
     constructor() {
         super()
@@ -2026,6 +2042,138 @@ class Kudo extends Monster {
         super.render(elapsed, drawing_context, offset_x, offset_y)
     }
 }
+
+
+
+class Flieger extends Monster {
+    constructor() {
+        super()
+        this.image = "bee"
+        this.walking = true
+        this.anim_frame = 1
+        this.direction = 1
+        this.refract = 0
+        this.speed_x_max = 3.4
+        this.speed_y_max = 3.4
+        this.speed_x_decr = 0.08
+        this.speed_y_decr = 0.08
+        this.speed_x = this.speed_x_max
+        this.speed_y = this.speed_y_max
+        this.x = 200
+        this.y = 250
+        this.x_dir = 1
+        this.y_dir = -1
+        this.fly_anim_counter = 0
+        this.fly_counter = 20
+        this.collision_box = { x: 0, y: 12, w: 32, h: 20 }
+        this.collision_dots = [
+            { id: "top1", x: 0, y: 5 },
+            { id: "top2", x: 12, y: 5 },
+            { id: "top3", x: 32, y: 5 },
+            { id: "bottom1", x: 0, y: 35 },
+            { id: "bottom2", x: 12, y: 35 },
+            { id: "bottom3", x: 32, y: 35 },
+            { id: "right1", x: 36, y: 20 },
+            { id: "left1", x: -3, y: 20 },
+        ]
+    }
+
+    update(info) {
+        // this class does not call super.update, handles everything itself
+
+        this.fly_anim_counter++
+        if (this.fly_anim_counter >= 3) {
+            this.anim_frame = 1 - this.anim_frame
+            this.fly_anim_counter = 0
+        }
+
+
+        this.x += this.speed_x * this.x_dir
+        this.y += this.speed_y * this.y_dir
+        this.gravity_disabled = true
+        
+        const dotCollides = info.coll.dot_collides_with_map
+        
+        if (
+            dotCollides("top1") ||
+            dotCollides("left1")
+        ) {
+            this.x += this.speed_x * 2
+            this.y += this.speed_y * 2
+            this.x_dir = 1
+            this.y_dir = one_of([-1, 1])
+        }
+
+        if (
+            dotCollides("top3") ||
+            dotCollides("right1")
+        ) {
+            this.x -= this.speed_x * 2
+            this.y += this.speed_y * 2
+            this.x_dir = -1
+            this.y_dir = one_of([-1, 1])
+        }
+
+        if (
+            dotCollides("bottom3")
+        ) {
+            this.x -= this.speed_x * 2
+            this.y -= this.speed_y * 2
+            this.x_dir = -1
+            this.y_dir = -1
+        }
+
+        if (
+            dotCollides("bottom1")
+        ) {
+            this.x += this.speed_x * 2
+            this.y -= this.speed_y * 2
+            this.x_dir = 1
+            this.y_dir = -1
+        }
+
+        this.fly_counter--
+
+        this.speed_x -= this.speed_x_decr
+        this.speed_y -= this.speed_y_decr
+        if (this.speed_x < 0) this.speed_x = 0
+        if (this.speed_y < 0) this.speed_y = 0
+
+        if (this.fly_counter <= 0) {
+            this.y_dir *= -1
+            this.speed_x = this.speed_x_max
+            this.speed_y = this.speed_y_max
+            if ( rnd(1,100) <= 25) {
+                if (this.y_dir) {
+                    this.y_dir = 0
+                } else {
+                    this.y_dir = one_of([-1, 1])
+                }
+                
+            }
+            this.fly_counter = one_of( [ rnd(28, 32), 12 ])
+            if (rnd(1, 100) <= 40) {
+                //move towards player
+                if (info.player.x > this.x) this.x_dir = 1
+                if (info.player.x < this.x) this.x_dir = -1
+            }
+
+        }
+
+    
+        
+
+
+
+    }
+
+    render(elapsed, drawing_context, offset_x, offset_y) {
+        this.direction = 0
+        if (this.x_dir > 0) this.direction = 1
+        super.render(elapsed, drawing_context, offset_x, offset_y)
+    }
+}
+
 
 
 class Player extends Entity {
@@ -2520,7 +2668,7 @@ class Level {
 
         o.dot_collides_with_map = (dot_name) => {
             let v = o.entity_vs_map[dot_name].collides
-            return v !== -1
+            return v
         }
 
         o.collides_with_entity = (entity2) => {
@@ -2807,12 +2955,15 @@ class Level {
             }
         }
 
-        this.map.render(drawing_context, //xyzzy
+        if (!debug.hide_overlay_tiles) {
+            this.map.render(drawing_context, //xyzzy
             px, py,
             camera_is_on_tile_x, camera_is_on_tile_y,
             camera_is_on_tile_x + vx, camera_is_on_tile_y + vy,
             {onlyOverlayTiles: true}
             )
+        }
+
 
     }
 

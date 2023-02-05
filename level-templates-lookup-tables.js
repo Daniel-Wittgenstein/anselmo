@@ -111,8 +111,13 @@ window.legend =
         //15 is invisible tile once touched
 
         "t": 16, //stone/rock/tower grey tile but walk-through / overlay
-        "ß": maybe(100, {put2: true, entity: Coin, tile: 16}, 16), //coin hidden beneath a stone tile
+        "ß": maybe(70, {put2: true, entity: Coin, tile: 16}, 16), //coin hidden beneath a stone tile
+
+
+        "å": {put2: true, entity: Ladder, tile: 16}, //ladder inside secret stone aisle / hidden
    
+        "f": () => maybe(70, Flieger, -1),
+
 
         "#": () => Ladder,
         "§": () => Rock,
