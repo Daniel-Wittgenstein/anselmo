@@ -860,6 +860,19 @@ class Entity {
 }
 
 
+class Water extends Entity {
+    //experiment plugh
+    constructor () {
+        super()
+        this.anim_speed = 0
+        this.image = "water"
+        this.direction = -1
+        this.anim_frame = 0
+        this.is_water = true
+        this.collision_box = { x: 0, y: 0, w: 64, h: 64 }   
+    }
+}
+
 
 class TechLever extends Entity {
     constructor () {
@@ -2262,12 +2275,15 @@ class Player extends Entity {
 
         this.only_test_last_y = this.y
 
+        if (this.is_player) this.handle_water(info)
+
         this.handle_common_movement(info)
 
         this.handle_ladder(info)
 
         this.handle_lever(info)
 
+        
 
         /*if (this.state === "on_ground") {
           this.handle_player_standing_on_ground(info)
@@ -2277,6 +2293,18 @@ class Player extends Entity {
 
 
 
+    }
+
+    handle_water(info) { //plugh
+        for (let item of info.coll.entity_vs_entity) {
+            if (item.is_water) {
+                this.speed_y = 0.1
+                this.is_underwater = true
+                break
+                //this.falling_acceleration = 0.00
+                //this.jump_speed = 16
+            }
+        }
     }
 
 
@@ -2444,7 +2472,7 @@ class Player extends Entity {
         }
         
         if (keys.key_just_pressed_down.jump) {
-            if (this.state === "on_ground") {
+            if (this.state === "on_ground" || this.is_underwater) {
                 this.start_jumping()
             } else {
                 if ( this.current_ladder ) {

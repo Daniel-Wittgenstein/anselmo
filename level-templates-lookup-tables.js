@@ -118,6 +118,8 @@ window.legend =
    
         "f": () => maybe(70, Flieger, -1),
 
+        "~": () => Water,
+
 
         "#": () => Ladder,
         "§": () => Rock,

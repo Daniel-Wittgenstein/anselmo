@@ -72,7 +72,7 @@ class LevelGenerator {
                   section = "doodletest" //testing only!!!! xyzzy todo to do remove
             if (yy === 0) section = "air"
 
-                  if (yy === 0) section = "airtest" //testing only!
+                  //if (yy === 0) section = "airtest" //testing only!
             
             if (yy >= 2) section = "underground"
             let subset = level_templates.filter( l => l.section === section)
