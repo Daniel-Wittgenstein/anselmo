@@ -183,9 +183,18 @@ class LevelGenerator {
 
             //set entity:
             if ( typeof value === 'object' ) {
+                let entityToCreate
+                let tileToCreate = -1
+                if (value.put2) {
+                    entityToCreate = value.entity
+                    tileToCreate = value.tile
+                } else {
+                    entityToCreate = value
+                    tileToCreate = -1
+                }
                 //entity:
-                info.level.map.set(x, y, -1) //empty tile
-                let entity = info.create_entity(value.put, x, y, info.level.map)
+                info.level.map.set(x, y, tileToCreate) //empty tile
+                let entity = info.create_entity(entityToCreate, x, y, info.level.map)
                 position_entity(entity, x, y)
             } else if (typeof value === 'function') { //if it's actually a function.
                 let res = value(x, y, info)
