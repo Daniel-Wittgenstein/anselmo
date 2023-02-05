@@ -488,6 +488,9 @@ class Entity {
   */      
 
     handle_falling(info) {
+
+                    //if (!this.is_player) return //testing only
+
         if (this.gravity_disabled) return
 
         this.accel += this.falling_acceleration
@@ -513,14 +516,12 @@ class Entity {
             prev_colliding = true
         } else {
             //for player:
-
             for (let i = 1; i < 7; i++) {
                 if (this.pre_input_collision_state.entity_vs_map["bottom" + i].collides) {
                     prev_colliding = true
                     break
                 }
             }    
-            prev_colliding = true
         }
 
 
