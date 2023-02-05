@@ -107,6 +107,11 @@ window.legend =
         "^": 11, //spike tile
         "°": 12, //spike tile 2
         "T": 13, //stone/rock/tower grey tile
+        "U": 14, //invisible tile
+        //15 is invisible tile once touched
+
+        "t": 16, //stone/rock/tower grey tile but walk-through / overlay
+        
 
         "#": () => Ladder,
         "§": () => Rock,

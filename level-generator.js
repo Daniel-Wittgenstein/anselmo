@@ -183,6 +183,7 @@ class LevelGenerator {
 
             //set entity:
             if ( typeof value === 'object' ) {
+                //entity:
                 info.level.map.set(x, y, -1) //empty tile
                 let entity = info.create_entity(value.put, x, y, info.level.map)
                 position_entity(entity, x, y)

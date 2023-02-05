@@ -157,6 +157,27 @@ let debug = {
 
 //SETTINGS:
 
+const settings = {
+    isOverlayTile: (tile) => {
+        //which tiles are rendered in the foreground
+        if (tile === 16) return true //stone walk-through      
+        if (tile === 13) return true  //stone not walk-through: also rendered in the foreground additionally,
+            //to avoid head appearing in front of it when jumping inside inner corridor
+        return false
+    },
+    
+    doesTileCollide: (tile) => {
+        //this sets which tiles are walkthrough and which aren't. walkthru pass through tile_collision 
+        if (tile === -1) return false //empty
+        if (tile === 16) return false //stone walk-through  
+        return true
+    },
+    
+}
+
+
+
+
 let GAME_UPDATE_RATE = 60 //should be 60; lower for testing (fps)
 
 collision_area_size_setting = 60 //for faster
@@ -446,13 +467,21 @@ class Entity {
 
         //special disappearing tile:
         if (collided_at_value === 10) {
-          //set timer for tile? xyzzy
-          console.log("LANDED ON NINER", tile_standing_on_coords )
-          const dx = 0
-          const dy = -8
-          info.level.map.set(tile_standing_on_coords.x, tile_standing_on_coords.y, -1)
-          info.level.map.set(tile_standing_on_coords.x + dx, tile_standing_on_coords.y + dy, 2)          
+            console.log("LANDED ON SPECIAL DISAPPEARING TILE", tile_standing_on_coords )
+            const dx = 0
+            const dy = -8
+            info.level.map.set(tile_standing_on_coords.x, tile_standing_on_coords.y, -1)
+            info.level.map.set(tile_standing_on_coords.x + dx, tile_standing_on_coords.y + dy, 2)          
+          }
+  
+        
+        //invisible tile:
+        if (collided_at_value === 14) {
+            console.log("HAUPTSCHILE")
+            info.level.map.set(tile_standing_on_coords.x, tile_standing_on_coords.y, 15)        
         }
+
+          
         
 
 
@@ -2314,12 +2343,17 @@ class GameMap extends Grid {
         this.circle_loop(func, sx, sy, radius)
     }
 */
-    render(drawing_context, offset_x, offset_y, start_x, start_y, end_x, end_y) {
+    render(drawing_context, offset_x, offset_y, start_x, start_y, end_x, end_y, mode) { //xyzzy
         //testing: draw the entire map:
         start_x = 0
         start_y = 0
         end_x = this.get_width()
         end_y = this.get_height()
+
+        let renderOnlyOverlayTiles = false
+        if (mode && mode.onlyOverlayTiles) {
+            renderOnlyOverlayTiles = true
+        }
 
         let func = (that, x, y, value) => {
             let px = offset_x + x * this.tile_size
@@ -2329,8 +2363,16 @@ class GameMap extends Grid {
             if (py > drawing_context.gfx_height) return
             if (px < -20) return
             if (py < -20) return            
-            
-            if (value !== -1) drawing_context.draw_image(img_name, px, py)
+
+            let renderImg = false
+            if (value !== -1) renderImg = true
+            if (renderOnlyOverlayTiles) { //xyzzy
+                renderImg = settings.isOverlayTile(value)
+            }
+
+            if (renderImg) {
+                drawing_context.draw_image(img_name, px, py)
+            }
 
             if (this.level.app.player.has_time_freeze_bubble) {
                 let rx = x * this.tile_size
@@ -2402,6 +2444,9 @@ class Level {
             11: "tile11",
             12: "tile12",
             13: "tile13",
+            14: "tile14",
+            15: "tile15",
+            16: "tile16",
         }
 
         let info = {
@@ -2501,6 +2546,10 @@ class Level {
         }
     }
 
+    doesTileCollide(tileValue) {
+        return settings.doesTileCollide(tileValue)
+    }
+
     get_collision_state_entity_vs_map(entity) {
         /*returns an object like this:
             collision_dot_id: {tile: value of tile, dot: colliding dot)
@@ -2523,7 +2572,7 @@ class Level {
             let t_out_of_bounds_x = out_of_bounds_x
             let t_out_of_bounds_y = out_of_bounds_y
             let v = this.map.get(tx, ty, t_out_of_bounds_x, t_out_of_bounds_y)
-            let rt = (v !== -1)
+            let rt = this.doesTileCollide(v)
             state[dot.id] = {tile: v, dot: dot, collides: rt,
                 tile_x: tx, tile_y: ty}
         }
@@ -2718,7 +2767,7 @@ class Level {
         drawing_context.raw_ctx.fillStyle = "#07A"
         drawing_context.raw_ctx.fillRect(0, py + 160, dc.gfx_width, 1000)
 
-        //render map render the map render level render the level
+        //render map render the map render level render the level render:level renderLevel
         this.map.render(drawing_context, 
             px, py,
             camera_is_on_tile_x, camera_is_on_tile_y,
@@ -2758,6 +2807,12 @@ class Level {
             }
         }
 
+        this.map.render(drawing_context, //xyzzy
+            px, py,
+            camera_is_on_tile_x, camera_is_on_tile_y,
+            camera_is_on_tile_x + vx, camera_is_on_tile_y + vy,
+            {onlyOverlayTiles: true}
+            )
 
     }
 
