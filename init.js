@@ -2296,6 +2296,7 @@ class Player extends Entity {
     }
 
     handle_water(info) { //plugh
+        this.is_underwater = false
         for (let item of info.coll.entity_vs_entity) {
             if (item.is_water) {
                 this.speed_y = 0.1
