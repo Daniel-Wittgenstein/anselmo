@@ -784,6 +784,7 @@ class Entity {
 
         this.test_only_last_y = this.y
 
+        //himmel
         drawing_context.draw_image(img_name, this.x +
             offset_x, this.y + offset_y)
 
@@ -2521,7 +2522,7 @@ class GameMap extends Grid {
     }
 */
     render(drawing_context, offset_x, offset_y, start_x, start_y, end_x, end_y, mode) { //xyzzy
-        //testing: draw the entire map:
+        //testing: draw the entire map: todo: change back???
         start_x = 0
         start_y = 0
         end_x = this.get_width()
@@ -2533,6 +2534,7 @@ class GameMap extends Grid {
         }
 
         let func = (that, x, y, value) => {
+            //himmel2.0
             let px = offset_x + x * this.tile_size
             let py = offset_y + y * this.tile_size
             let img_name = this.image_table[value]
@@ -2939,12 +2941,48 @@ class Level {
         //this.ctx.clearRect(0, 0, this.canvas_width, this.canvas_height)
 
         let dc = drawing_context
-        drawing_context.raw_ctx.fillStyle = "#162126"
-        drawing_context.raw_ctx.fillRect(0, 0, dc.gfx_width, dc.gfx_height)
-        drawing_context.raw_ctx.fillStyle = "#07A"
-        drawing_context.raw_ctx.fillRect(0, py + 160, dc.gfx_width, 1000)
 
-        //render map render the map render level render the level render:level renderLevel
+        const hill_line_y = 1280
+
+        drawing_context.raw_ctx.fillStyle = "#162126"
+        drawing_context.raw_ctx.fillRect(0, 0, dc.gfx_width, dc.gfx_height) //underground background
+        drawing_context.raw_ctx.fillStyle = "#07A"
+        drawing_context.raw_ctx.fillRect(0, py + 160, dc.gfx_width, 1000) //sky background
+        ////drawing_context.raw_ctx.fillStyle = "#722222"
+        ////drawing_context.raw_ctx.fillRect(0, py + hill_line_y - 160, dc.gfx_width, 160) //hill color additional background
+
+    
+        //render hills
+        //himmel1.0
+
+        for (let i = 0; i < 8; i++) {
+            let hill_x = i * 400
+            drawing_context.draw_image("bighill", hill_x + px, hill_line_y - player.y - 100)
+        }
+
+        
+
+        for (let i = 0; i < 10; i++) {
+            let hill_x = i * 320
+            drawing_context.draw_image("hill", hill_x + px, hill_line_y - player.y)
+        }
+
+
+        if (!this.renderedAlreadyFirstTimeSwitch) {
+            this.renderedAlreadyFirstTimeSwitch = true
+            this.hill2offset = []
+            for (let i = 0; i < 10; i++) {
+                this.hill2offset[i] = rnd(0, 60)
+            }    
+        }
+
+        for (let i = 0; i < 10; i++) {
+            let hill_x = i * 320 + 240
+            drawing_context.draw_image("hill2", hill_x + px + this.hill2offset[i], hill_line_y - player.y)
+        }
+
+
+        //render map render the map render level render the level render:level renderLevel himmel
         this.map.render(drawing_context, 
             px, py,
             camera_is_on_tile_x, camera_is_on_tile_y,
