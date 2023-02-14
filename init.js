@@ -2303,7 +2303,10 @@ class Bat extends Flieger {
     update(info) {
         super.update(info)
         if (this.x >= info.player.x - 16
-                && this.x <= info.player.x + 16) {
+                && this.x <= info.player.x + 16
+                && info.player.y > this.y
+                && info.player.y - this.y <= 100
+                ) {
             if (!this.aggro) {
                 const ent = info.level.create_entity(BatTerra, this.x, this.y)
                 console.log(2, ent)

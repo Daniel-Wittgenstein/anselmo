@@ -86,6 +86,7 @@ window.legend =
         "i": () => maybe(70, Infector, -1),
         "b": () => maybe(50, SpikeBall, -1),
         "&": () => maybe(50, Kudo, -1),
+        "@": () => maybe(100, Bat, -1),
 
         "+": () => TechLever,
         "%": () => TechBridge,
