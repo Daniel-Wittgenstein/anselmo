@@ -2063,6 +2063,11 @@ class Flieger extends Monster {
     constructor() {
         super()
         this.image = "bee"
+        this.fly_horizontally_probability = 25 //0 = never flies horizontally
+            //100 = often, but still not always
+        this.move_towards_player_probability_horizontal = 40
+        this.move_towards_player_probability_vertical = 0
+        this.animation_speed = 3 //lower is faster (integer)
         this.walking = true
         this.anim_frame = 1
         this.direction = 1
@@ -2092,11 +2097,16 @@ class Flieger extends Monster {
         ]
     }
 
+    resetFlyCounter() {
+        //should return integer, the smaller this is, the faster enemy changes direction
+        return 10
+    }
+
     update(info) {
         // this class does not call super.update, handles everything itself
 
         this.fly_anim_counter++
-        if (this.fly_anim_counter >= 3) {
+        if (this.fly_anim_counter >= this.animation_speed) {
             this.anim_frame = 1 - this.anim_frame
             this.fly_anim_counter = 0
         }
@@ -2157,7 +2167,7 @@ class Flieger extends Monster {
             this.y_dir *= -1
             this.speed_x = this.speed_x_max
             this.speed_y = this.speed_y_max
-            if ( rnd(1,100) <= 25) {
+            if ( rnd(1,100) <= this.fly_horizontally_probability) {
                 if (this.y_dir) {
                     this.y_dir = 0
                 } else {
@@ -2165,19 +2175,20 @@ class Flieger extends Monster {
                 }
                 
             }
-            this.fly_counter = one_of( [ rnd(28, 32), 12 ])
-            if (rnd(1, 100) <= 40) {
-                //move towards player
+            this.fly_counter = this.resetFlyCounter()
+            if (rnd(1, 100) <= this.move_towards_player_probability_horizontal) {
+                //move towards player x
                 if (info.player.x > this.x) this.x_dir = 1
                 if (info.player.x < this.x) this.x_dir = -1
             }
+            
+            if (rnd(1, 100) <= this.move_towards_player_probability_vertical) {
+                //move towards player y
+                if (info.player.y > this.y) this.y_dir = 1
+                if (info.player.y < this.y) this.y_dir = -1
+            }
 
         }
-
-    
-        
-
-
 
     }
 
@@ -2188,6 +2199,102 @@ class Flieger extends Monster {
     }
 }
 
+
+class Bee extends Flieger {
+    constructor() {
+        super()
+        this.image = "bee"
+        this.animation_speed = 3
+        this.fly_horizontally_probability = 25
+        this.move_towards_player_probability_horizontal = 40
+        this.move_towards_player_probability_vertical = 0
+        this.speed_x_max = 3.4
+        this.speed_y_max = 3.4
+        this.speed_x_decr = 0.08
+        this.speed_y_decr = 0.08
+        this.speed_x = this.speed_x_max
+        this.speed_y = this.speed_y_max
+    }
+    resetFlyCounter() {
+        return one_of( [ rnd(28, 32), 12 ])
+    }
+}
+
+
+class Bat extends Flieger {
+    constructor() {
+        super()
+        this.image = "bat"
+        this.animation_speed = 12
+        this.fly_horizontally_probability = 25
+        this.move_towards_player_probability_horizontal = 40
+        this.move_towards_player_probability_vertical = 0
+        this.speed_x_max = 2.4
+        this.speed_y_max = 0
+        this.speed_x_decr = 0
+        this.speed_y_decr = 0
+        this.speed_x = this.speed_x_max
+        this.speed_y = this.speed_y_max
+    }
+    resetFlyCounter() {
+        return one_of( [ rnd(28, 32), 12 ])
+    }
+    update(info) {
+        super.update(info)
+        if (this.x >= info.player.x - 16
+                && this.x <= info.player.x + 16) {
+            if (!this.aggro) {
+                const ent = info.level.create_entity(BatTerra, this.x, this.y)
+                console.log(2, ent)
+                ent.x = this.x
+                ent.y = this.y
+                this.destroy()
+            }
+            this.aggro = true
+        }
+        if (this.aggro) {
+            this.speed_x_max = 0
+            
+        }
+    }
+}
+
+
+
+
+class BatTerra extends JumpCharger {
+    constructor() {
+        super()
+        this.image = "batrun"
+        this.jump_cooldown_min = 50
+        this.jump_cooldown_max = 100
+        this.jump_power_min = 4
+        this.jump_power_max = 7
+        this.jump_power_decrease_by_px = 1
+        this.jump_power_decrease_time = 4
+        
+        this.slow_walk_anim_speed = 20
+        this.running_anim_speed = 20
+        const ox = 16
+        this.collision_box = { x: 16, y: 14, w: 32, h: 20 }
+        this.collision_dots = [
+            { id: "bottom3", x: 38 + ox, y: 35 },
+            { id: "bottom2", x: 15 + ox, y: 35 },
+            { id: "bottom1", x: -8 + ox, y: 35 },
+
+            { id: "right1", x: 36 + ox, y: 23 },
+            { id: "left1", x: -6 + ox, y: 23 },
+
+            { id: "top3", x: 24 + ox, y: 6 },
+            { id: "top2", x: 15 + ox, y: 3 },
+            { id: "top1", x: 6 + ox, y: 6 },
+        ]
+    }
+    update(info) {
+        super.update(info)
+    }
+    
+}
 
 
 class Player extends Entity {

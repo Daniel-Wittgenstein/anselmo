@@ -116,7 +116,7 @@ window.legend =
 
         "å": {put2: true, entity: Ladder, tile: 16}, //ladder inside secret stone aisle / hidden
    
-        "f": () => maybe(70, Flieger, -1),
+        "f": () => maybe(100, Bat, -1), //revert todo revert to bee, 70 for actual levels. just testing bat here
 
         "~": () => Water,
 
