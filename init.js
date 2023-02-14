@@ -3062,16 +3062,16 @@ class Level {
         //render hills
         //himmel1.0
 
-        for (let i = 0; i < 8; i++) {
+        for (let i = 0; i < 5; i++) {
             let hill_x = i * 400
-            drawing_context.draw_image("bighill", hill_x + px, hill_line_y - player.y - 100)
+            drawing_context.draw_image("bighill", hill_x + px * 0.3, hill_line_y - player.y - 100)
         }
 
         
 
         for (let i = 0; i < 10; i++) {
-            let hill_x = i * 320
-            drawing_context.draw_image("hill", hill_x + px, hill_line_y - player.y)
+            let hill_x = i * 270
+            drawing_context.draw_image("hill", hill_x + px * 0.5, hill_line_y - player.y)
         }
 
 
@@ -3081,11 +3081,19 @@ class Level {
             for (let i = 0; i < 10; i++) {
                 this.hill2offset[i] = rnd(0, 60)
             }    
+            for (let i = 10; i < 20; i++) {
+                this.hill2offset[i] = rnd(0, 320)
+            }    
         }
 
         for (let i = 0; i < 10; i++) {
             let hill_x = i * 320 + 240
-            drawing_context.draw_image("hill2", hill_x + px + this.hill2offset[i], hill_line_y - player.y)
+            drawing_context.draw_image("hill2", hill_x + px * 0.6 + this.hill2offset[i], hill_line_y - player.y)
+        }
+
+        for (let i = 10; i < 20; i++) {
+            let hill_x = (i-10) * 320 + 240
+            drawing_context.draw_image("hill2", hill_x + px * 0.65 + this.hill2offset[i], hill_line_y - player.y)
         }
 
 
