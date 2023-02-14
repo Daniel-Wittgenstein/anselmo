@@ -103,7 +103,7 @@ window.legend =
         8: 8, // sand 2
         9: 9, // sand 3
 
-        "★": 10, //disappearing tile
+        "(": 10, //disappearing tile
         "^": 11, //spike tile
         "°": 12, //spike tile 2
         "T": 13, //stone/rock/tower grey tile
@@ -116,7 +116,10 @@ window.legend =
 
         "å": {put2: true, entity: Ladder, tile: 16}, //ladder inside secret stone aisle / hidden
    
-        "f": () => maybe(100, Bat, -1), //revert todo revert to bee, 70 for actual levels. just testing bat here
+        "f": () => maybe(70, Bee, -1),
+        "|": () => maybe(80, Waterplant, -1),
+
+        "<": () => maybe(85, Turtle, -1),
 
         "~": () => Water,
 

@@ -2220,6 +2220,67 @@ class Bee extends Flieger {
     }
 }
 
+class Turtle extends Flieger {
+    constructor() {
+        super()
+        this.image = "turtle"
+        this.animation_speed = 20
+        this.fly_horizontally_probability = 25
+        this.move_towards_player_probability_horizontal = 10
+        this.move_towards_player_probability_vertical = 0
+        this.speed_x_max = 1
+        this.speed_y_max = 0
+        this.speed_x_decr = 0.1
+        this.speed_y_decr = 0
+        this.speed_x = this.speed_x_max
+        this.speed_y = this.speed_y_max
+        this.collision_box = { x: 8, y: 22, w: 44, h: 14 }
+        this.collision_dots = [
+            { id: "top1", x: 0, y: 5 },
+            { id: "top2", x: 12, y: 5 },
+            { id: "top3", x: 52, y: 5 },
+            { id: "bottom1", x: 0, y: 35 },
+            { id: "bottom2", x: 12, y: 35 },
+            { id: "bottom3", x: 52, y: 35 },
+            { id: "right1", x: 56, y: 20 },
+            { id: "left1", x: -3, y: 20 },
+        ]
+    }
+}
+
+
+class Waterplant extends Entity {
+    constructor() {
+        super()
+        this.image = "waterplant"
+        this.direction = -1
+        this.collision_box = { x: 4, y: 4, w: 24, h: 22 }
+        this.collision_dots = []
+        this.w_anim = 0
+        this.w_anim_count = 0
+        this.anim_speed = 40
+    }
+    update(info) {
+    }
+    render(elapsed, drawing_context, offset_x, offset_y, modifiers = {}) {
+        this.w_anim_count++
+        if (this.w_anim_count > this.anim_speed) {
+            this.w_anim_count = 0
+            this.w_anim ++
+            if (this.w_anim >= 4) this.w_anim = 0
+        }
+        let frame
+        if (this.w_anim === 0) frame = 0
+        if (this.w_anim === 1) frame = 1
+        if (this.w_anim === 2) frame = 2
+        if (this.w_anim === 3) frame = 1
+        let img_name = "waterplant" + frame
+        drawing_context.draw_image(img_name, this.x +
+            offset_x, this.y + offset_y - 8)
+    }
+}
+
+
 
 class Bat extends Flieger {
     constructor() {
@@ -3049,12 +3110,12 @@ class Level {
 
         let dc = drawing_context
 
-        const hill_line_y = 1280
+        const hill_line_y = 1272
 
         drawing_context.raw_ctx.fillStyle = "#162126"
         drawing_context.raw_ctx.fillRect(0, 0, dc.gfx_width, dc.gfx_height) //underground background
         drawing_context.raw_ctx.fillStyle = "#07A"
-        drawing_context.raw_ctx.fillRect(0, py + 160, dc.gfx_width, 1000) //sky background
+        drawing_context.raw_ctx.fillRect(0, py + 160, dc.gfx_width, 992) //sky background
         ////drawing_context.raw_ctx.fillStyle = "#722222"
         ////drawing_context.raw_ctx.fillRect(0, py + hill_line_y - 160, dc.gfx_width, 160) //hill color additional background
 
