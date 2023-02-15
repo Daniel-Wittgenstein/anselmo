@@ -751,7 +751,7 @@ class Entity {
 
 
     render(elapsed, drawing_context, offset_x, offset_y, modifiers = {}) {
-
+        //bob
         if (this.no_render) return
 
         if (!this.image) throw `Entity has no image.`
@@ -784,11 +784,15 @@ class Entity {
 
         this.test_only_last_y = this.y
 
-        //himmel
-        drawing_context.draw_image(img_name, this.x +
-            offset_x, this.y + offset_y)
+        let ox = 0
+        let oy = 0
+        if (this.image_render_offset_x) {ox = this.image_render_offset_x}
+        if (this.image_render_offset_y) {oy = this.image_render_offset_y}
 
-        if (debug.show_collision_boxes) {
+        drawing_context.draw_image(img_name, this.x +
+            offset_x + ox, this.y + offset_y + oy)
+
+            if (debug.show_collision_boxes) {
             this.show_collision_box(drawing_context, offset_x, offset_y)
             this.draw_collision_dots(drawing_context, offset_x, offset_y)
         }
@@ -1285,7 +1289,7 @@ class Ladder extends Entity {
 class Runner extends Monster {
     constructor() {
         super()
-
+        //bob
         //SETTINGS (all of these variables can be changed
         //to tweak the behavior! Just inherit from this
         //and tweak the variables to create a new monster type
@@ -1316,8 +1320,6 @@ class Runner extends Monster {
         this.walk_around_time_max = 120 //120
 
         this.has_aggressive_run = true
-
-
 
         this.stomping_feet_time = 100 // 100
 
@@ -1425,7 +1427,7 @@ class Runner extends Monster {
 
         this.count --
 
-        if(this.count <= 0) {
+        if(this.count <= 0 && !this.disable_standard_behavior) {
             this.status ++
 
             if (this.status >= 7) {
@@ -1523,7 +1525,7 @@ class Runner extends Monster {
 
         
         
-        if (this.status === 10) {
+        if (this.status === 10 && !this.disable_standard_behavior) {
 
             this.count = 1000 //block countdown
             this.jmp_pow_decr_time_c --
@@ -1559,7 +1561,7 @@ class Runner extends Monster {
         }
 
 
-        if (this.status === 5) {
+        if (this.status === 5 && !this.disable_standard_behavior) {
             //walking on spot, preparing to run
             this.anim_speed = 5
             this.wcount++
@@ -1617,6 +1619,142 @@ class Runner extends Monster {
 }
 
 
+class Shooter extends Runner {
+    /* stationary shooter. does not walk
+    */
+   //bob
+    constructor() {
+        super()
+        this.image = "elefanto"
+        this.has_aggressive_run = false
+        this.slow_walk_speed = 0
+        this.slow_walk_anim_speed = 0
+        this.look_around_time_min = 20
+        this.look_around_time_max = 160
+        this.image_render_offset_x = 0
+        this.image_render_offset_y = -16
+        this.has_aggressive_run = false
+        this.disable_standard_behavior = true
+        this.speed = 0
+        
+        this.collision_box = { x: 50, y: 2, w: 32, h: 20 }
+        const ox = 40
+        this.collision_dots = [
+            { id: "bottom3", x: 24 + ox, y: 35 },
+            { id: "bottom2", x: 15 + ox, y: 35 },
+            { id: "bottom1", x: 6 + ox, y: 35 },
+
+            { id: "right1", x: 24 + ox, y: 23 },
+            { id: "left1", x: 6 + ox, y: 23 },
+
+            { id: "top3", x: 24 + ox, y: 6 },
+            { id: "top2", x: 15 + ox, y: 3 },
+            { id: "top1", x: 6 + ox, y: 6 },
+        ]
+        this.shoot_count = 0
+        this.shoot_phase = 0
+        const anim_time = 1
+        this.phase_length = {
+            0: 120, //standing around, turning in your direction if appropriate
+            1: anim_time,
+            2: anim_time,   
+            3: 20, //while shooting short pause   
+            4: anim_time,   
+            5: anim_time,
+            6: 40, //pause after shooting before they start turning in your direction again
+        }
+
+    }
+    //bob
+    update(info) {
+        super.update(info)
+        this.shoot_count++
+        if (this.shoot_count >= this.phase_length[this.shoot_phase]) {
+            this.shoot_count = 0
+            this.shoot_phase++
+            if (this.shoot_phase >= 7) {
+                this.shoot_phase = 0
+            }
+        }
+
+        if (this.shoot_phase === 0) {
+            //standard standing around phase
+            //always face the player:
+            this.shot = false
+            this.anim_frame = 0
+            const distance = Math.abs(info.player.x - this.x)
+            const distance_y = Math.abs(info.player.y - this.y)
+            
+            if (distance <= 200 && distance_y <= 20) {
+                if (info.player.x - 50 < this.x) {
+                    this.direction = 0
+                } else {
+                    this.direction = 1
+                }
+            }
+        } else if (this.shoot_phase === 1) {
+            //extend trunk 1
+            this.anim_frame = 6
+        } else if (this.shoot_phase === 2) {
+            //extend trunk 2
+            this.anim_frame = 7
+        } else if (this.shoot_phase === 3) {
+            //actually shoot todo to do
+            if (!this.shot) {
+                this.shot = true
+                const ent = info.level.create_entity(ShooterBullet, this.x, this.y)
+                let dir = -1
+                let offset_x = 0
+                if (this.direction === 1) {
+                    dir = 1
+                    offset_x = 96
+                }
+                ent.x = this.x + offset_x
+                ent.y = this.y
+                ent.direction = dir
+            }
+            this.anim_frame = 7
+        } else if (this.shoot_phase === 4) {
+            //retreat trunk 1
+            this.anim_frame = 7
+        } else if (this.shoot_phase === 5) {
+            //retreat trunk 1
+            this.anim_frame = 6
+        } else if (this.shoot_phase === 6) {
+            //pause
+            this.anim_frame = 1
+        }
+
+
+    }
+}
+
+
+class ShooterBullet extends Bullet {
+    constructor(x, y) {
+        super(x, y)
+        this.image = "bomb"
+        this.speed = 2000
+    }
+    move(info) {
+        const speed = 12
+        this.x += speed * this.direction
+    }
+    on_collide_with_map(info) {
+        this.destroy()
+    }
+}
+
+/*
+class Elefanto extends Entity {
+    constructor() {
+        super()
+        this.image = "elefanto"
+    }
+}
+*/
+
+
 class Jumper extends Runner {
     /* a subclass of Runner:
     an enemy that jumps around, but does not charge at you.
@@ -1648,10 +1786,7 @@ class Jumper extends Runner {
         this.walk_around_time_max = 150 //120
         
         this.has_aggressive_run = false //test
-
-
     }
-
 }
 
 
@@ -2776,6 +2911,8 @@ GameMap.game_map_from_grid = (grid, tile_size, tile_image, level) => {
 
 class Level {
     constructor(level_generator, parent_app) {
+        this.background_mode = "purple_hills"
+        //this.background_mode = "jungle"
         this.entities = []
         this.app = parent_app
         this.entities_by_id = {}
@@ -3111,54 +3248,12 @@ class Level {
         //render background
         //this.ctx.clearRect(0, 0, this.canvas_width, this.canvas_height)
 
-        let dc = drawing_context
-
-        const hill_line_y = 1272
-
-        drawing_context.raw_ctx.fillStyle = "#162126"
-        drawing_context.raw_ctx.fillRect(0, 0, dc.gfx_width, dc.gfx_height) //underground background
-        drawing_context.raw_ctx.fillStyle = "#07A"
-        drawing_context.raw_ctx.fillRect(0, py + 160, dc.gfx_width, 992) //sky background
-        ////drawing_context.raw_ctx.fillStyle = "#722222"
-        ////drawing_context.raw_ctx.fillRect(0, py + hill_line_y - 160, dc.gfx_width, 160) //hill color additional background
-
-    
-        //render hills
-        //himmel1.0
-
-        for (let i = 0; i < 5; i++) {
-            let hill_x = i * 400
-            drawing_context.draw_image("bighill", hill_x + px * 0.3, hill_line_y - player.y - 100)
+        if (this.background_mode === "purple_hills") {
+            render_background.hills(drawing_context, px, py, player.x, player.y)
+        } else if (this.background_mode === "jungle") {
+            render_background.jungle(drawing_context, px, py, player.x, player.y)
         }
 
-        
-
-        for (let i = 0; i < 10; i++) {
-            let hill_x = i * 270
-            drawing_context.draw_image("hill", hill_x + px * 0.5, hill_line_y - player.y)
-        }
-
-
-        if (!this.renderedAlreadyFirstTimeSwitch) {
-            this.renderedAlreadyFirstTimeSwitch = true
-            this.hill2offset = []
-            for (let i = 0; i < 10; i++) {
-                this.hill2offset[i] = rnd(0, 60)
-            }    
-            for (let i = 10; i < 20; i++) {
-                this.hill2offset[i] = rnd(0, 320)
-            }    
-        }
-
-        for (let i = 0; i < 10; i++) {
-            let hill_x = i * 320 + 240
-            drawing_context.draw_image("hill2", hill_x + px * 0.6 + this.hill2offset[i], hill_line_y - player.y)
-        }
-
-        for (let i = 10; i < 20; i++) {
-            let hill_x = (i-10) * 320 + 240
-            drawing_context.draw_image("hill2", hill_x + px * 0.65 + this.hill2offset[i], hill_line_y - player.y)
-        }
 
 
         //render map render the map render level render the level render:level renderLevel himmel
@@ -3213,9 +3308,114 @@ class Level {
 
     }
 
-
-
 }
+
+
+
+
+
+
+const render_background = {
+    
+    jungle: (dc, px, py, player_x, player_y) => {
+        const hill_line_y = 1272
+        dc.raw_ctx.fillStyle = "#162126"
+        dc.raw_ctx.fillRect(0, 0, dc.gfx_width, dc.gfx_height) //underground background
+        dc.raw_ctx.fillStyle = "#07A"
+        dc.raw_ctx.fillRect(0, py + 160, dc.gfx_width, 992 - 14) //sky background
+
+        if (!this.renderedAlreadyFirstTimeSwitch) {
+            this.renderedAlreadyFirstTimeSwitch = true
+            this.hill2offset = []
+            for (let i = 0; i < 10; i++) {
+                this.hill2offset[i] = rnd(0, 60)
+            }    
+            for (let i = 10; i < 20; i++) {
+                this.hill2offset[i] = rnd(0, 320)
+            }    
+        }
+
+
+
+        for (let i = 0; i < 10; i++) {
+            let hill_x = i * 320 + 240
+            const offy = - 200
+            dc.draw_image("palm", hill_x + px * 0.5 + this.hill2offset[i], hill_line_y - player_y + offy)
+        }
+
+
+        
+        for (let i = 0; i < 50; i++) {
+            let x = i * 100
+            dc.draw_image("grass", x + px * 0.6, hill_line_y - player_y + 20)
+        }
+
+/*
+        for (let i = 10; i < 20; i++) {
+            let hill_x = (i-10) * 320 + 240
+            let img = "hill2"
+            let offy = 0
+            dc.draw_image(img, hill_x + px * 0.65 + this.hill2offset[i], hill_line_y - player_y + offy)
+        }
+*/
+
+    },
+
+    hills: (dc, px, py, player_x, player_y) => { //dc = drawing content
+        const hill_line_y = 1272
+
+        dc.raw_ctx.fillStyle = "#162126"
+        dc.raw_ctx.fillRect(0, 0, dc.gfx_width, dc.gfx_height) //underground background
+        dc.raw_ctx.fillStyle = "#07A"
+        dc.raw_ctx.fillRect(0, py + 160, dc.gfx_width, 992 - 14) //sky background
+        ////dc.raw_ctx.fillStyle = "#722222"
+        ////dc.raw_ctx.fillRect(0, py + hill_line_y - 160, dc.gfx_width, 160) //hill color additional background
+
+
+        //render hills
+        //himmel1.0
+
+        for (let i = 0; i < 5; i++) {
+            let hill_x = i * 400
+            dc.draw_image("bighill", hill_x + px * 0.3, hill_line_y - player_y - 100)
+        }
+
+        
+
+        for (let i = 0; i < 10; i++) {
+            let hill_x = i * 270
+            let img = "hill"
+            let offy = 0
+            dc.draw_image(img, hill_x + px * 0.5, hill_line_y - player_y + offy)
+        }
+
+
+        if (!this.renderedAlreadyFirstTimeSwitch) {
+            this.renderedAlreadyFirstTimeSwitch = true
+            this.hill2offset = []
+            for (let i = 0; i < 10; i++) {
+                this.hill2offset[i] = rnd(0, 60)
+            }    
+            for (let i = 10; i < 20; i++) {
+                this.hill2offset[i] = rnd(0, 320)
+            }    
+        }
+
+        for (let i = 0; i < 10; i++) {
+            let hill_x = i * 320 + 240
+            dc.draw_image("hill2", hill_x + px * 0.6 + this.hill2offset[i], hill_line_y - player_y)
+        }
+
+        for (let i = 10; i < 20; i++) {
+            let hill_x = (i-10) * 320 + 240
+            let img = "hill2"
+            let offy = 0
+            dc.draw_image(img, hill_x + px * 0.65 + this.hill2offset[i], hill_line_y - player_y + offy)
+        }
+    },
+}
+
+
 
 
 class Universe {

@@ -127,6 +127,11 @@ window.legend =
 
         "#": () => Ladder,
         "§": () => Rock,
+
+
+        "?": () => Shooter,
+
+
     }
 }
 
