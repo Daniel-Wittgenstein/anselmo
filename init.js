@@ -751,7 +751,6 @@ class Entity {
 
 
     render(elapsed, drawing_context, offset_x, offset_y, modifiers = {}) {
-        //bob
         if (this.no_render) return
 
         if (!this.image) throw `Entity has no image.`
@@ -792,7 +791,7 @@ class Entity {
         drawing_context.draw_image(img_name, this.x +
             offset_x + ox, this.y + offset_y + oy)
 
-            if (debug.show_collision_boxes) {
+        if (debug.show_collision_boxes) {
             this.show_collision_box(drawing_context, offset_x, offset_y)
             this.draw_collision_dots(drawing_context, offset_x, offset_y)
         }
@@ -820,18 +819,10 @@ class Entity {
             let r = this.get_dot_position_on_screen(dot)
             bx = r.x + offset_x
             by = r.y + offset_y
-
-            //console.log(1333, dot.x,dot.y)
-            //console.log(bx, by) monster
-            //if (!this.is_player) console.log(r)
             drawing_context.raw_ctx.fillRect(bx - 1, by - 1, 3, 3)
-
             let t = this.get_dot_position_on_map(dot)
-
             let a = this.level.get_tile_at_position(t.x, t.y)
-
             if (dot.id === "top1" && this.is_player) {
-                //console.log(a.x, a.y)
                 debug.highlight_tile_x = a.x
                 debug.highlight_tile_y = a.y
             }
@@ -866,7 +857,6 @@ class Entity {
 
 
 class Water extends Entity {
-    //experiment plugh
     constructor () {
         super()
         this.anim_speed = 0
@@ -990,6 +980,41 @@ class Monster extends Entity {
 }
 
 
+class WallEye extends Entity {
+    constructor(x, y) {
+        super()
+        this.direction = 0
+        this.image = "eye"
+        this.stare_counter = 0
+    }
+    update(info) {
+        this.stare_counter++
+        const distance_x = Math.abs(info.player.x - this.x)
+        const distance_y = Math.abs(info.player.y - this.y)
+        if (distance_x <= 200 && distance_y <= 200) {
+            if (info.player.x < this.x) {
+                this.direction = 1
+            } else {
+                this.direction = 0
+            }
+        } else {
+            if (this.stare_counter >= 0) {
+                this.stare_counter = rnd(-100, -150)
+                this.direction = 1 - this.direction
+            }
+        }
+    }
+
+    render(elapsed, drawing_context, offset_x, offset_y, modifiers = {}) {
+        let ox = 0
+        let oy = 0
+        let img_name = this.direction ? "eyer0" : "eye0"
+        drawing_context.draw_image(img_name, this.x +
+            offset_x + ox, this.y + offset_y + oy)
+    }
+}
+
+
 class Bullet extends Entity {
     /* stuff that is more or less
     a bullet.
@@ -1036,7 +1061,7 @@ class Bullet extends Entity {
         {
             this.on_collide_with_map(info)
         } else if (info.coll.entity_vs_entity.length > 0) {
-            //take fist entity. if they overlap,
+            //take first entity. if they overlap,
             //there is probably little point
             //into distinguishing - well for some cases
             //there might be, but if we really do logic
@@ -1086,7 +1111,6 @@ class BombBullet extends Bullet {
     //hickups in bullet seem to come entirely from entity collisions
     //i don't know what fucking invisible entity does this??????
     //sometimes a bullet just disappears shortly after shooting it
-
 
     on_collide_with_entity(info, entity) {
 
@@ -1619,10 +1643,10 @@ class Runner extends Monster {
 }
 
 
+
 class Shooter extends Runner {
     /* stationary shooter. does not walk
     */
-   //bob
     constructor() {
         super()
         this.image = "elefanto"
@@ -1665,7 +1689,6 @@ class Shooter extends Runner {
         }
 
     }
-    //bob
     update(info) {
         super.update(info)
         this.shoot_count++
@@ -1699,7 +1722,7 @@ class Shooter extends Runner {
             //extend trunk 2
             this.anim_frame = 7
         } else if (this.shoot_phase === 3) {
-            //actually shoot todo to do
+            //actually shoot
             if (!this.shot) {
                 this.shot = true
                 const ent = info.level.create_entity(ShooterBullet, this.x, this.y)
@@ -1724,8 +1747,6 @@ class Shooter extends Runner {
             //pause
             this.anim_frame = 1
         }
-
-
     }
 }
 
@@ -1745,14 +1766,99 @@ class ShooterBullet extends Bullet {
     }
 }
 
-/*
-class Elefanto extends Entity {
-    constructor() {
-        super()
-        this.image = "elefanto"
+class DroneBullet extends Bullet {
+    constructor(x, y) {
+        super(x, y)
+        this.image = "droneshot"
+        this.speed = 0
+    }
+    move(info) {
+        const speed = 8
+        this.x += speed * this.direction
+    }
+    on_collide_with_map(info) {
+        this.destroy()
     }
 }
-*/
+
+
+
+class RoboDrone extends Runner {
+    constructor() {
+        super()
+        this.image = "drone"
+        this.has_aggressive_run = false
+        this.slow_walk_speed = 2
+        this.slow_walk_anim_speed = 2
+        this.look_around_time_min = 20
+        this.look_around_time_max = 160
+        this.image_render_offset_x = 0
+        this.image_render_offset_y = -16
+        this.has_aggressive_run = false
+        this.disable_standard_behavior = true
+        this.speed = 2
+        
+        this.collision_box = { x: 0, y: -10, w: 32, h: 20 }
+        const ox = 0
+        const ay = 35
+        this.collision_dots = [
+            { id: "bottom3", x: 24 + ox, y: ay },
+            { id: "bottom2", x: 15 + ox, y: ay },
+            { id: "bottom1", x: 6 + ox, y: ay },
+
+            { id: "right1", x: 24 + ox, y: 0 },
+            { id: "left1", x: 6 + ox, y: 0 },
+
+            { id: "top3", x: 24 + ox, y: -6 },
+            { id: "top2", x: 15 + ox, y: -9 },
+            { id: "top1", x: 6 + ox, y: -6 },
+        ]
+        this.shoot_count = 0
+        this.shoot_phase = 0
+        const anim_time = 1
+        this.has_jumping = false
+        this.shoot_counter = 0
+        this.shoot_process = false
+    }
+    update(info) {
+        super.update(info)
+
+        this.shoot_counter++
+
+        if (this.shoot_counter >= 150) {
+            //turn towards player:
+            const distance = Math.abs(info.player.x - this.x)
+            const distance_y = Math.abs(info.player.y - this.y)
+            
+            if (distance <= 200 && distance_y <= 20) {
+                if (info.player.x - 50 < this.x) {
+                    this.direction = 0
+                } else {
+                    this.direction = 1
+                }
+            }
+            //shoot:
+            this.shoot_counter = 0
+            const ent = info.level.create_entity(DroneBullet, this.x, this.y)
+            let dir = -1
+            let offset_x = 5
+            if (this.direction === 1) {
+                dir = 1
+                offset_x = 5
+            }
+            ent.x = this.x + offset_x
+            ent.y = this.y
+            ent.direction = dir
+            this.shoot_counter = 0
+            this.status = 1
+        }
+
+    }
+
+}
+
+
+
 
 
 class Jumper extends Runner {
@@ -2934,6 +3040,9 @@ class Level {
             14: "tile14",
             15: "tile15",
             16: "tile16",
+            17: "tile17",
+            18: "tile18",
+            19: "tile19",
         }
 
         let info = {

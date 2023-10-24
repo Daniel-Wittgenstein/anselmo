@@ -112,8 +112,13 @@ window.legend =
         //15 is invisible tile once touched
 
         "t": 16, //stone/rock/tower grey tile but walk-through / overlay
-        "ß": maybe(70, {put2: true, entity: Coin, tile: 16}, 16), //coin hidden beneath a stone tile
 
+        "ö": 17, //red block 1
+        "ä": 18, //red block 2
+        "ü": 19, //red block 3
+        "Ä": {put2: true, entity: WallEye, tile: 17},
+
+        "ß": {put2: true, entity: Coin, tile: 16},
 
         "å": {put2: true, entity: Ladder, tile: 16}, //ladder inside secret stone aisle / hidden
    
@@ -124,13 +129,11 @@ window.legend =
 
         "~": () => Water,
 
-
         "#": () => Ladder,
         "§": () => Rock,
 
-
         "?": () => Shooter,
-
+        "!": () => RoboDrone,
 
     }
 }

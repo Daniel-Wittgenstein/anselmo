@@ -63,13 +63,12 @@ class LevelGenerator {
     generate(info) {
         /*
         This can call info.create_entity
-
-        lets rewrite this entirely
         */
         function get_row(level_templates, width, yy, blaupause) {
             //width: integer: how many template blocks
             let section = "mid"
                   section = "doodletest" //testing only!!!! xyzzy todo to do remove
+
             if (yy === 0) section = "air"
 
                   //if (yy === 0) section = "airtest" //testing only!
@@ -131,8 +130,6 @@ class LevelGenerator {
             blaupause[y + 1][x] = "up  " +x
             last_dropdown = x
         }
-
-        console.log("blaupause", blaupause)
 
         //now we need to convert the blaupause to sth. actually meaningful:
         let grid
