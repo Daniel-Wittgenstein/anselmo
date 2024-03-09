@@ -1302,7 +1302,7 @@ class Ladder extends Entity {
         this.image = "ladder"
         this.is_ladder = true
         this.direction = -1
-        this.collision_box = { x: 0, y: 0, w: 16, h: 128 } //to do todo adjust
+        this.collision_box = { x: 0, y: 0, w: 32, h: 128 }
         this.collision_dots = []
     }
 }
@@ -2678,7 +2678,7 @@ class Player extends Entity {
 
         if (this.current_ladder) {
             this.gravity_disabled = true
-            this.x = this.current_ladder.x - 6 
+            this.x = this.current_ladder.x + 2
         }
 
         if (this.shoot_input) {
@@ -2763,12 +2763,6 @@ class Player extends Entity {
     }
 
     handle_ladder(info) {
-
-        //to do: make ladder less wide auto-center
-        //player once they grab ladder (shouldn't look too bad,
-        //if ladder is not that wide), disallow left /right on ladder
-        //and allow jumping from ladder
-
         if (this.current_ladder) {
             //check if still touching it,
             //if not, always disattach:
@@ -2784,13 +2778,13 @@ class Player extends Entity {
         let x = info.keys.key_down.up
         let x2 = info.keys.key_down.down
         if (x || x2) {
+            console.log("pressing up or down", info.coll)
             //check if touching ladder
             let target = false
-            let a = info.coll.entity_vs_entity
-            //console.log(a)
-            for (let item of a) {
+            for (let item of info.coll.entity_vs_entity) {
                 if (item.is_ladder) {
-                    target = item
+                    target = item //problem if you are touching two ladders while jumping? solution: maybe upper ladder can always have priority?
+                    console.log("touching ladder")
                     break
                 }
             }
@@ -3095,9 +3089,13 @@ class Level {
 
         let final = []
 
-        for (let entity2 of v) {
+        for (let entity2 of v) {    
+            console.log("checking collision boxes:", entity, entity2)
             if ( entity.collision_boxes_overlap(entity2) ) {
                 final.push(entity2)
+                console.log("#collides")
+            } else {
+                console.log("#does not collide")
             }
         }
 
@@ -3107,7 +3105,8 @@ class Level {
     }
 
 
-    get_collision_state(entity) {        
+    get_collision_state(entity) {
+        console.log("bitchi")        
         let o = {
             entity_vs_entity: this.get_collision_state_entity_vs_entity(entity),
             entity_vs_map: this.get_collision_state_entity_vs_map(entity),
@@ -3292,6 +3291,8 @@ class Level {
             info.map = this.map
             info.player = player
             info.collision_state = this.get_collision_state(entity)
+            console.log("i", info)
+            debugger
             info.coll = info.collision_state
             info.keys = key_bank
             entity.update(info, elapsed)
