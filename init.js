@@ -169,9 +169,11 @@ const settings = {
     },
     
     doesTileCollide: (tile) => {
-        //this sets which tiles are walkthrough and which aren't. walkthru pass through tile_collision 
+        //this sets which tiles are walkthrough and which aren't. walkthru 
+        //pass through tile_collision 
         if (tile === -1) return false //empty
-        if (tile === 16) return false //stone walk-through  
+        if (tile >= 1 && tile <= 4 ) return false //grass on top  
+
         return true
     },
     
@@ -447,9 +449,9 @@ class Entity {
             ) {
             let target = false
             let v = collided_at_value
-            if (v === 7) target = 8
-            if (v === 8) target = 9
-            if (v === 9) target = -1
+            if (v === 7777) target = 8 //todo ajust values
+            if (v === 7778) target = 9
+            if (v === 77779) target = -1
             if (target) info.level.map.set(collided_at_x, collided_at_y, target)
         }
 
@@ -465,20 +467,19 @@ class Entity {
         if (this.is_player) {
             //console.log("LANDED ON GROUND. y:", this.y)
         }
-        
-
+    
         //special disappearing tile:
-        if (collided_at_value === 10) {
+        if (collided_at_value === 199999) { //todo: adjust value
             console.log("LANDED ON SPECIAL DISAPPEARING TILE", tile_standing_on_coords )
             const dx = 0
             const dy = -8
             info.level.map.set(tile_standing_on_coords.x, tile_standing_on_coords.y, -1)
             info.level.map.set(tile_standing_on_coords.x + dx, tile_standing_on_coords.y + dy, 2)          
-          }
+        }
   
         
         //invisible tile:
-        if (collided_at_value === 14) {
+        if (collided_at_value === 1129999) { //todo: adjust value
             info.level.map.set(tile_standing_on_coords.x, tile_standing_on_coords.y, 15)        
         }
 
@@ -3037,6 +3038,8 @@ class Level {
             17: "tile17",
             18: "tile18",
             19: "tile19",
+            20: "tile20",
+            21: "tile21",
         }
 
         let info = {
@@ -3292,7 +3295,6 @@ class Level {
             info.player = player
             info.collision_state = this.get_collision_state(entity)
             console.log("i", info)
-            debugger
             info.coll = info.collision_state
             info.keys = key_bank
             entity.update(info, elapsed)

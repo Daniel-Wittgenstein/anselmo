@@ -67,12 +67,9 @@ class LevelGenerator {
         function get_row(level_templates, width, yy, blaupause) {
             //width: integer: how many template blocks
             let section = "mid"
-                  section = "doodletest" //testing only!!!! xyzzy todo to do remove
-
-            if (yy === 0) section = "air"
-
-                  //if (yy === 0) section = "airtest" //testing only!
+            section = "doodletest" //testing only!!!! xyzzy todo to do remove
             
+            if (yy === 0) section = "air"
             if (yy >= 2) section = "underground"
             let subset = level_templates.filter( l => l.section === section)
             if (!subset.length) {
