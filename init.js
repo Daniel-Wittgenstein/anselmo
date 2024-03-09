@@ -3484,23 +3484,9 @@ const render_background = {
         ////dc.raw_ctx.fillRect(0, py + hill_line_y - 160, dc.gfx_width, 160) //hill color additional background
 
 
-        //render hills
+        //render background:
         //himmel1.0
-
-        for (let i = 0; i < 5; i++) {
-            let hill_x = i * 400
-            dc.draw_image("bighill", hill_x + px * 0.3, hill_line_y - player_y - 100)
-        }
-
-        
-
-        for (let i = 0; i < 10; i++) {
-            let hill_x = i * 270
-            let img = "hill"
-            let offy = 0
-            dc.draw_image(img, hill_x + px * 0.5, hill_line_y - player_y + offy)
-        }
-
+        dc.draw_image("bg1", px * 0.1, 752 - player_y)
 
         if (!this.renderedAlreadyFirstTimeSwitch) {
             this.renderedAlreadyFirstTimeSwitch = true
@@ -3515,14 +3501,14 @@ const render_background = {
 
         for (let i = 0; i < 10; i++) {
             let hill_x = i * 320 + 240
-            dc.draw_image("hill2", hill_x + px * 0.6 + this.hill2offset[i], hill_line_y - player_y)
+            //dc.draw_image("hill2", hill_x + px * 0.6 + this.hill2offset[i], hill_line_y - player_y)
         }
 
         for (let i = 10; i < 20; i++) {
             let hill_x = (i-10) * 320 + 240
             let img = "hill2"
             let offy = 0
-            dc.draw_image(img, hill_x + px * 0.65 + this.hill2offset[i], hill_line_y - player_y + offy)
+            //dc.draw_image(img, hill_x + px * 0.65 + this.hill2offset[i], hill_line_y - player_y + offy)
         }
     },
 }
