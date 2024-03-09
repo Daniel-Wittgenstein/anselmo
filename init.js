@@ -3426,7 +3426,7 @@ class Level {
 
 
 
-
+let currentBgImage
 const render_background = {
     
     jungle: (dc, px, py, player_x, player_y) => {
@@ -3462,15 +3462,6 @@ const render_background = {
             dc.draw_image("grass", x + px * 0.6, hill_line_y - player_y + 20)
         }
 
-/*
-        for (let i = 10; i < 20; i++) {
-            let hill_x = (i-10) * 320 + 240
-            let img = "hill2"
-            let offy = 0
-            dc.draw_image(img, hill_x + px * 0.65 + this.hill2offset[i], hill_line_y - player_y + offy)
-        }
-*/
-
     },
 
     hills: (dc, px, py, player_x, player_y) => { //dc = drawing content
@@ -3480,36 +3471,11 @@ const render_background = {
         dc.raw_ctx.fillRect(0, 0, dc.gfx_width, dc.gfx_height) //underground background
         dc.raw_ctx.fillStyle = "#07A"
         dc.raw_ctx.fillRect(0, py + 160, dc.gfx_width, 992 - 14) //sky background
-        ////dc.raw_ctx.fillStyle = "#722222"
-        ////dc.raw_ctx.fillRect(0, py + hill_line_y - 160, dc.gfx_width, 160) //hill color additional background
-
-
-        //render background:
-        //himmel1.0
-        dc.draw_image("bg1", px * 0.1, 752 - player_y)
-
         if (!this.renderedAlreadyFirstTimeSwitch) {
             this.renderedAlreadyFirstTimeSwitch = true
-            this.hill2offset = []
-            for (let i = 0; i < 10; i++) {
-                this.hill2offset[i] = rnd(0, 60)
-            }    
-            for (let i = 10; i < 20; i++) {
-                this.hill2offset[i] = rnd(0, 320)
-            }    
+            currentBgImage = rnd(1, 2)
         }
-
-        for (let i = 0; i < 10; i++) {
-            let hill_x = i * 320 + 240
-            //dc.draw_image("hill2", hill_x + px * 0.6 + this.hill2offset[i], hill_line_y - player_y)
-        }
-
-        for (let i = 10; i < 20; i++) {
-            let hill_x = (i-10) * 320 + 240
-            let img = "hill2"
-            let offy = 0
-            //dc.draw_image(img, hill_x + px * 0.65 + this.hill2offset[i], hill_line_y - player_y + offy)
-        }
+        dc.draw_image("bg" + currentBgImage, px * 0.1, 752 - player_y)
     },
 }
 
