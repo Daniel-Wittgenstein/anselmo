@@ -130,7 +130,7 @@ let debug = {
 
     hide_overlay_tiles: 0,
 
-    show_collision_boxes: 0, //enable/disable with alt + c, also show collision dots
+    show_collision_boxes: 0, //enable/disable with c, also show collision dots
     log_player_state: 0,
 
     highlight_tile: 0,
@@ -209,10 +209,10 @@ const allowed_collision_ids_list = [
     "top4", "top5", "top6",
     
     "left1", "left2", "left3",
-    "left4", 
+    "left4", "left5", "left6",
     
     "right1", "right2", "right3",
-    "right4", 
+    "right4", "left5", "left6",
     
     "bottom1", "bottom2", "bottom3",
     "bottom4", "bottom5", "bottom6",
@@ -455,8 +455,7 @@ class Entity {
         }
 
         let pp = info.level.get_px_position_from_tile_position(0, lowest_tile_y)
-        let yyy = pp.y
-        this.y = yyy - this.total_height
+        this.y = pp.y - this.total_height
         this.last_speed_y = 0
         this.speed_y = 0
         this.accel = 0
@@ -671,13 +670,14 @@ class Entity {
         for (let i = 0; i < 2; i++) {
             let d = "right"
             if (i === 0) d = "left"
-            if (
-                    ce[d + 1].collides ||
-                    ce[d + 2].collides ||
-                    ce[d + 3].collides ||
-                    ce[d + 4].collides
-
-                ) {
+            let ok_collide = false
+            for (let j = 1; j < 7; j++ ) {
+                if (ce[d + j] && ce[d + j].collides) {
+                    ok_collide = true
+                    break
+                }
+            }
+            if (ok_collide) {
                 do_collide = true
                 this.collision_type = "left-right"
                 this.collision_sub_type = d
@@ -807,7 +807,7 @@ class Entity {
     show_collision_box(drawing_context, offset_x, offset_y) {
         let ent = this
         let lastf = drawing_context.raw_ctx.fillStyle
-        drawing_context.raw_ctx.fillStyle = "rgba(255, 0, 0, 0.4)"
+        drawing_context.raw_ctx.fillStyle = "rgba(0, 255, 255, 0.4)"
         drawing_context.raw_ctx.fillRect(
             ent.x + offset_x + ent.collision_box.x,
             ent.y + offset_y + ent.collision_box.y,
@@ -2634,12 +2634,12 @@ class Player extends Entity {
         this.player = true
         this.x = 40
         this.y = 470
-        this.collision_box = { x: 8, y: 0, w: 12, h: 32 }
+        this.collision_box = { x: 4, y: 0, w: 20, h: 48 }
         this.collision_dots = [
 
-            { id: "bottom1", x: 8, y: 33 },
-            { id: "bottom2", x: 13, y: 33 },
-            { id: "bottom3", x: 19,y: 33, }, 
+            { id: "bottom1", x: 8, y: 48 },
+            { id: "bottom2", x: 13, y: 48 },
+            { id: "bottom3", x: 19, y: 48 }, 
 
             { id: "top1", x: 10, y: -12, },
             { id: "top2", x: 18, y: -12, },
@@ -2651,12 +2651,15 @@ class Player extends Entity {
             { id: "left2", x: 8, y: 13, },        
             { id: "left3", x: 8, y: 20, },           
             { id: "left4", x: 8, y: 27, },
+            { id: "left5", x: 8, y: 34, },
+            { id: "left6", x: 8, y: 41, },
 
             { id: "right1", x: 19, y: 6, },
             { id: "right2", x: 19, y: 13, },        
             { id: "right3", x: 19, y: 20, },           
             { id: "right4", x: 19, y: 27, },
-
+            { id: "right3", x: 19, y: 34, },           
+            { id: "right4", x: 19, y: 41, },
 
             //for walking up slopes:
 
@@ -2666,11 +2669,9 @@ class Player extends Entity {
             
         ]
 
-        this.image_render_offset_x = 0
-        this.image_render_offset_y = -20
-        this.image_render_width = 32
-        this.image_render_height = 48
-        
+        this.image_render_offset_x = -18
+        this.image_render_offset_y = -14
+        this.total_height = 47
 
         //NON-SETTINGS:
 
