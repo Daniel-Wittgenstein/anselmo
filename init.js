@@ -352,7 +352,7 @@ class Entity {
     }
 
     request_start_walking_frame() {
-        return 0
+        return 1
     }
 
     request_next_walking_frame() {
@@ -2628,8 +2628,8 @@ class Player extends Entity {
         this.ladder_anim_speed = 8 //higher = slower!
 
         this.is_player = true
-        this.speed = 4.5
-        this.anim_speed = 14
+        this.speed = 3.8
+        this.anim_speed = 20
         this.image = "anselmo"
         this.player = true
         this.x = 40
@@ -2682,6 +2682,14 @@ class Player extends Entity {
 
     //ce.bottom1.collides ||
     //ce.bottom2.collides     
+
+    request_next_walking_frame() {
+        //standard simple walking animation
+        //with two frames. monster sub-classes can override this.
+        this.anim_frame++
+        if (this.anim_frame >= 9) this.anim_frame = 1
+        return this.anim_frame
+    }
 
     update(info) {
 
@@ -2791,13 +2799,13 @@ class Player extends Entity {
         let x = info.keys.key_down.up
         let x2 = info.keys.key_down.down
         if (x || x2) {
-            console.log("pressing up or down", info.coll)
+            //console.log("pressing up or down", info.coll)
             //check if touching ladder
             let target = false
             for (let item of info.coll.entity_vs_entity) {
                 if (item.is_ladder) {
                     target = item //problem if you are touching two ladders while jumping? solution: maybe upper ladder can always have priority?
-                    console.log("touching ladder")
+                    //console.log("touching ladder")
                     break
                 }
             }
@@ -2821,7 +2829,7 @@ class Player extends Entity {
                         this.anim_frame = 1
                     }
                 }
-                console.log("climb")
+                //console.log("climb")
             }
 
         }
@@ -2854,16 +2862,17 @@ class Player extends Entity {
 
         if (keys.key_down.left) {
             this.x -= this.speed
-            this.walking = true
+            this.walking = true //todo: do not set this true if in mid air
             this.last_mov_x = -this.speed
             this.direction = -1
         }
 
         if (keys.key_down.right) {
             this.x += this.speed
-            this.walking = true
+            this.walking = true //todo: do not set this true if in mid air
             this.last_mov_x = this.speed
             this.direction = 1
+            console.log(888)
         }
 
         this.shoot_input = false
@@ -2877,10 +2886,9 @@ class Player extends Entity {
                 this.stop_walking()
         }
 
-        if (keys.key_just_pressed_down.left ||
-            keys.key_just_pressed_down.right) {
-                this.anim_frame = 1
-                this.anim_counter = 0
+        if ( this.state === "on_ground" && (keys.key_just_pressed_down.left ||
+            keys.key_just_pressed_down.right)) {
+                this.start_walking()
         }
 
         if (this.state === "jumping"

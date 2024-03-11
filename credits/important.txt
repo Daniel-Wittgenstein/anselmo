@@ -1,0 +1,3 @@
+tiles: opp project opengameart
+player character: Universal LPC Sprite Sheet Character Generator
+backgrounds: created myself with ai (scenario ai)
