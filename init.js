@@ -162,8 +162,8 @@ let debug = {
 const settings = {
     isOverlayTile: (tile) => {
         //which tiles are rendered in the foreground
-        if (tile === 16) return true //stone walk-through      
-        if (tile === 13) return true  //stone not walk-through: also rendered in the foreground additionally,
+        //if (tile === 16) return true //stone walk-through      
+        //if (tile === 13) return true  //stone not walk-through: also rendered in the foreground additionally,
             //to avoid head appearing in front of it when jumping inside inner corridor
         return false
     },
@@ -173,7 +173,6 @@ const settings = {
         //pass through tile_collision 
         if (tile === -1) return false //empty
         if (tile >= 1 && tile <= 4 ) return false //grass on top  
-
         return true
     },
     
@@ -465,7 +464,7 @@ class Entity {
         this.sub_state = "standing"
         //if (debug.log_player_state && this.is_player) console.log("landed on ground")
         if (this.is_player) {
-            //console.log("LANDED ON GROUND. y:", this.y)
+            console.log("LANDED ON GROUND. y:", this.y)
         }
     
         //special disappearing tile:
@@ -789,8 +788,14 @@ class Entity {
         if (this.image_render_offset_x) {ox = this.image_render_offset_x}
         if (this.image_render_offset_y) {oy = this.image_render_offset_y}
 
-        drawing_context.draw_image(img_name, this.x +
-            offset_x + ox, this.y + offset_y + oy)
+        if (this.image_render_width && this.image_render_height) {
+            drawing_context.draw_image(
+                img_name, this.x + offset_x + ox, this.y + offset_y + oy,
+                this.image_render_width, this.image_render_height)
+        } else {
+            drawing_context.draw_image(
+                img_name, this.x + offset_x + ox, this.y + offset_y + oy)
+        }
 
         if (debug.show_collision_boxes) {
             this.show_collision_box(drawing_context, offset_x, offset_y)
@@ -2661,6 +2666,12 @@ class Player extends Entity {
             
         ]
 
+        this.image_render_offset_x = 0
+        this.image_render_offset_y = -20
+        this.image_render_width = 32
+        this.image_render_height = 48
+        
+
         //NON-SETTINGS:
 
         this.score = 0
@@ -3093,12 +3104,12 @@ class Level {
         let final = []
 
         for (let entity2 of v) {    
-            console.log("checking collision boxes:", entity, entity2)
+            //console.log("checking collision boxes:", entity, entity2)
             if ( entity.collision_boxes_overlap(entity2) ) {
                 final.push(entity2)
-                console.log("#collides")
+                //console.log("#collides")
             } else {
-                console.log("#does not collide")
+                //console.log("#does not collide")
             }
         }
 
@@ -3108,8 +3119,7 @@ class Level {
     }
 
 
-    get_collision_state(entity) {
-        console.log("bitchi")        
+    get_collision_state(entity) {      
         let o = {
             entity_vs_entity: this.get_collision_state_entity_vs_entity(entity),
             entity_vs_map: this.get_collision_state_entity_vs_map(entity),
@@ -3294,7 +3304,7 @@ class Level {
             info.map = this.map
             info.player = player
             info.collision_state = this.get_collision_state(entity)
-            console.log("i", info)
+            //console.log("i", info)
             info.coll = info.collision_state
             info.keys = key_bank
             entity.update(info, elapsed)
@@ -4202,14 +4212,18 @@ class App {
         window.sound = this.audio //set as global
     }
     
-    draw_image(img_name, x, y) {
+    draw_image(img_name, x, y, width = null, height = null) {
         //console.log(img_name, this.image[img_name], this.image)
         //console.log(this.image[img_name])
         if (!this.image[img_name]) {
             return
             //throw `Image with name '${img_name}' does not exist'`
         }
-        this.ctx.drawImage(this.image[img_name], x, y)
+        if (!width || !height) {
+            this.ctx.drawImage(this.image[img_name], x, y)
+        } else {
+            this.ctx.drawImage(this.image[img_name], x, y, width, height)
+        }
     }
 
 
