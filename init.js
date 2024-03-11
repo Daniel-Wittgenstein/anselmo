@@ -643,8 +643,14 @@ class Entity {
         let x = one_of(["jump1", "jump2"])
         sound[x].volume = 0.1
         sound[x].play()
-
+        this.anim_frame = this.request_start_jumping_frame(this.anim_frame)
     }
+
+    request_start_jumping_frame(frame) {
+        if (this.is_player) return 1
+        return 1
+    }
+
 
 
     stop_jumping() {
