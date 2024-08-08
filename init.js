@@ -4255,6 +4255,8 @@ class App {
             return
             //throw `Image with name '${img_name}' does not exist'`
         }
+        x = Math.round(x)
+        y = Math.round(y)
         this.ctx.drawImage(this.image[img_name], x, y)
     }
 
