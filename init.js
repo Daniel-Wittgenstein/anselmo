@@ -2778,13 +2778,13 @@ class Player extends Entity {
         let x = info.keys.key_down.up
         let x2 = info.keys.key_down.down
         if (x || x2) {
-            console.log("pressing up or down", info.coll)
+            //console.log("pressing up or down", info.coll)
             //check if touching ladder
             let target = false
             for (let item of info.coll.entity_vs_entity) {
                 if (item.is_ladder) {
                     target = item //problem if you are touching two ladders while jumping? solution: maybe upper ladder can always have priority?
-                    console.log("touching ladder")
+                    //console.log("touching ladder")
                     break
                 }
             }

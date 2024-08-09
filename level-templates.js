@@ -140,9 +140,9 @@ level_templates = (function() {
                       
       add({
         lookup_table: legend.normal,
-        section: "baumtest",
+        section: "doodletest",
         bottom_open: false,
-        test: "treeofevil",
+        test: "treeo3443434432",
         content: `
         ........................................
         ........................................
