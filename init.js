@@ -3037,6 +3037,7 @@ class Level {
             17: "tile17",
             18: "tile18",
             19: "tile19",
+            20: "tile20",
         }
 
         let info = {
@@ -3473,9 +3474,9 @@ const render_background = {
     hills: (dc, px, py, player_x, player_y) => { //dc = drawing content
         const hill_line_y = 1272
 
-        dc.raw_ctx.fillStyle = "#070707"
+        dc.raw_ctx.fillStyle = "#000"
         dc.raw_ctx.fillRect(0, 0, dc.gfx_width, dc.gfx_height) //underground background
-        dc.raw_ctx.fillStyle = "#070707"
+        dc.raw_ctx.fillStyle = "#27b287"
         dc.raw_ctx.fillRect(0, py + 160, dc.gfx_width, 992 - 14) //sky background
         ////dc.raw_ctx.fillStyle = "#722222"
         ////dc.raw_ctx.fillRect(0, py + hill_line_y - 160, dc.gfx_width, 160) //hill color additional background

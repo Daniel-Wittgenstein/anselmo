@@ -94,8 +94,8 @@ window.legend =
         
 
         0: 0, //foliage
-        1: 1, //tree / brown ground
-        2: 2, //brown ground with grass
+        1: (x, y) => y > 75 ? 20 : (y > 74 ? maybe(50, 20, 1): 1), // 1 = tree / ground / 20 = cave walls
+        2: 2, //ground with grass
         3: 3, //infected ground
         4: 4, //infected ground 2
         5: 5, // iron bar (open with lever)
@@ -134,6 +134,7 @@ window.legend =
 
         "?": () => Shooter,
         "!": () => RoboDrone,
+
 
     }
 }

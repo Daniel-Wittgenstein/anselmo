@@ -68,7 +68,7 @@ class LevelGenerator {
             //width: integer: how many template blocks
             let section = "mid"
 
-                section = "doodletest" //testing only!!!! xyzzy todo to do remove
+//                section = "doodletest" //testing only!!!! xyzzy todo to do remove
 
             if (yy === 0) section = "air"
 
