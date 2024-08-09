@@ -1908,7 +1908,7 @@ class Bloogie extends Runner {
     */
     constructor() {
         super()
-        this.image = "runner"
+        this.image = "brunner"
         this.has_aggressive_run = true //test
         this.slow_walk_speed = 0.5
         this.slow_walk_anim_speed = 10
