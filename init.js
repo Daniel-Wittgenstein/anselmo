@@ -3090,12 +3090,12 @@ class Level {
         let final = []
 
         for (let entity2 of v) {    
-            console.log("checking collision boxes:", entity, entity2)
+            //console.log("checking collision boxes:", entity, entity2)
             if ( entity.collision_boxes_overlap(entity2) ) {
                 final.push(entity2)
-                console.log("#collides")
+                //console.log("#collides")
             } else {
-                console.log("#does not collide")
+                //console.log("#does not collide")
             }
         }
 
@@ -3106,7 +3106,6 @@ class Level {
 
 
     get_collision_state(entity) {
-        console.log("bitchi")        
         let o = {
             entity_vs_entity: this.get_collision_state_entity_vs_entity(entity),
             entity_vs_map: this.get_collision_state_entity_vs_map(entity),
@@ -3291,8 +3290,8 @@ class Level {
             info.map = this.map
             info.player = player
             info.collision_state = this.get_collision_state(entity)
-            console.log("i", info)
-            debugger
+            //console.log("i", info)
+            //debugger
             info.coll = info.collision_state
             info.keys = key_bank
             entity.update(info, elapsed)
@@ -3474,9 +3473,9 @@ const render_background = {
     hills: (dc, px, py, player_x, player_y) => { //dc = drawing content
         const hill_line_y = 1272
 
-        dc.raw_ctx.fillStyle = "#162126"
+        dc.raw_ctx.fillStyle = "#070707"
         dc.raw_ctx.fillRect(0, 0, dc.gfx_width, dc.gfx_height) //underground background
-        dc.raw_ctx.fillStyle = "#07A"
+        dc.raw_ctx.fillStyle = "#070707"
         dc.raw_ctx.fillRect(0, py + 160, dc.gfx_width, 992 - 14) //sky background
         ////dc.raw_ctx.fillStyle = "#722222"
         ////dc.raw_ctx.fillRect(0, py + hill_line_y - 160, dc.gfx_width, 160) //hill color additional background
@@ -3487,7 +3486,7 @@ const render_background = {
 
         for (let i = 0; i < 5; i++) {
             let hill_x = i * 400
-            dc.draw_image("bighill", hill_x + px * 0.3, hill_line_y - player_y - 100)
+            ////dc.draw_image("bighill", hill_x + px * 0.3, hill_line_y - player_y - 100)
         }
 
         
@@ -3496,7 +3495,7 @@ const render_background = {
             let hill_x = i * 270
             let img = "hill"
             let offy = 0
-            dc.draw_image(img, hill_x + px * 0.5, hill_line_y - player_y + offy)
+            /////dc.draw_image(img, hill_x + px * 0.5, hill_line_y - player_y + offy)
         }
 
 
@@ -3513,14 +3512,14 @@ const render_background = {
 
         for (let i = 0; i < 10; i++) {
             let hill_x = i * 320 + 240
-            dc.draw_image("hill2", hill_x + px * 0.6 + this.hill2offset[i], hill_line_y - player_y)
+            ////dc.draw_image("hill2", hill_x + px * 0.6 + this.hill2offset[i], hill_line_y - player_y)
         }
 
         for (let i = 10; i < 20; i++) {
             let hill_x = (i-10) * 320 + 240
             let img = "hill2"
             let offy = 0
-            dc.draw_image(img, hill_x + px * 0.65 + this.hill2offset[i], hill_line_y - player_y + offy)
+            /////dc.draw_image(img, hill_x + px * 0.65 + this.hill2offset[i], hill_line_y - player_y + offy)
         }
     },
 }
